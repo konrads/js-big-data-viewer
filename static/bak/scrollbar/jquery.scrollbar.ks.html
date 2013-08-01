@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>jQuery Custom Scrollbar</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <link type="text/css" href="jquery.scrollbar.css" rel="stylesheet" media="all" />
+
+        <script type="text/javascript" src="jquery.js"></script>
+        <script type="text/javascript" src="jquery.scrollbar.ks.js"></script>
+        <script type="text/javascript" src="jquery.ba-dotimeout.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                var scrollable = $('.scroll-standard')
+                scrollable.scrollbar({scrollXStep: 10, scrollYStep: 100});
+                scrollable.scroll(function(event){
+                   $.doTimeout( 'scroll', 250, function(){
+                      console.log('top: ' + scrollable.scrollTop() + ', left: ' + scrollable.scrollLeft());
+                   });
+                });
+            });
+        </script>
+    </head>
+    <body>
+
+        <div style="padding: 20px;">
+            <h2>Standard MS Windows Vista scrollbar</h2>
+            <div class="content scroll-standard">
+                <img src="image.jpg" class="resizable" style="width:800px;height:600px;" />
+            </div>
+
+        </div>
+    </body>
+</html>

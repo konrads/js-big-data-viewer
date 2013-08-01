@@ -1,0 +1,59 @@
+<html>
+<head>
+<!-- link rel="stylesheet" href="css/jquery-ui.css" type="text/css" media="all" /  -->
+
+<script src="js/vendor/jquery.js"></script>
+<script src="js/vendor/jquery-ui.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/scrollbar.js"></script>
+<script>
+var xs = [], ys = [], zs = [];
+for (var i=0; i<600; i++) xs.push(i%5 ? 'x'+i : 'XxXx'+i);
+for (var i=0; i<400; i++) ys.push(i%5 ? 'y'+i : 'YYYYY'+i);
+for (var i=0; i<200; i++) zs.push(i%5 ? 'z'+i : 'zzZZ'+i);
+
+$(function(){
+    var bar1 = $('#scrollbar1').scrollbar({
+       label: 'X dim',
+       vals: xs,
+       labelWidth: 80,
+       initVal: 'x49',
+       scrollCallback: function (val) {
+           console.log('scrolled 1 to: ' + val);
+       }
+    });
+    var bar2 = $('#scrollbar2').scrollbar({
+       label: 'Y dim',
+       vals: ys,
+       labelWidth: 80,
+       initVal: 'y81',
+       scrollCallback: function (val) {
+           console.log('scrolled 2 to: ' + val);
+       }
+    });
+    var bar3 = $('#scrollbar3').scrollbar({
+       label: 'Z dim',
+       vals: zs,
+       labelWidth: 80,
+       initVal: 'z98',
+       scrollCallback: function (val) {
+           console.log('scrolled 3 to: ' + val);
+       }
+    });
+   
+});
+</script>
+</head>
+
+<div id="scrollbar1" style="width: 1000px;"></div>
+<br/>
+<br/>
+<div id="scrollbar2" style="width: 1000px;"></div>
+<br/>
+<br/>
+<div id="scrollbar3" style="width: 1000px;"></div>
+<br/>
+
+<body>
+</body>
+</html>

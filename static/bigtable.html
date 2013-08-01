@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>HC Viewer</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <link href="css/vendor/jquery.scrollbar.css" rel="stylesheet" media="all" />
+
+        <script src="js/vendor/underscore.js"></script>
+        <script src="js/vendor/jquery.js"></script>
+        <script src="js/vendor/jquery.scrollbar.ks.js"></script>
+        <script src="js/vendor/jquery.ba-dotimeout.js"></script>
+        <script src="js/scrollpane.js"></script>
+        <script src="js/bigtable.js"></script>
+        <script>
+            $(document).ready(function(){
+                $('.scroll-standard').scrollpane({scrollXStep: 10, scrollYStep: 100});
+                $('.bigtable').bigtable();
+            });
+        </script>
+    </head>
+    <body>
+
+        <div style="padding: 20px;">
+            <h2>Standard MS Windows Vista scrollbar</h2>
+            <div class="content scroll-standard">
+                <img src="img/image.jpg" class="resizable" style="width:800px;height:600px;" />
+            </div>
+
+            <div class="bigtable">
+            </div>
+
+        </div>
+    </body>
+</html>
