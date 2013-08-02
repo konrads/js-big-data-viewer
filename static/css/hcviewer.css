@@ -1,9 +1,15 @@
-.bdt_filler_and_col_headers { background-color: red; }
+.bdt_filler_and_colheaders { background-color: red; }
 .bdt_filler { background-color: brown; }
-.bdt_col_headers { background-color: pink; }
-/* .bdt_row_headers_and_content { background-color: green; } */
-.bdt_row_headers { background-color: blue; }
-.bdt_content { background-color: yellow; }
 
+.bdt_colheaders { background-color: pink; }
+.bdt_colheaders_canvas { background-color: HotPink; }
+.bdt_colheaders_data { background-color: Salmon; }
+
+/* .bdt_rowheaders_and_content { background-color: green; } */
+.bdt_rowheaders { background-color: cyan; }
+.bdt_rowheaders_canvas { background-color: blue; }
+.bdt_rowheaders_data { background-color: DarkBlue; }
+
+.bdt_content { background-color: yellow; }
 .bdt_content_canvas { background-color: Gold; }
 .bdt_content_data { background-color: GoldenRod; }

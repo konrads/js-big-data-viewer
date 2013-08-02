@@ -146,14 +146,24 @@ function ScrollableDim(
         var hDim = new ScrollableDim(config.row.currInd, config.row.cnt, config.row.visible, config.row.buffer, config.row.h);
 
         var allTemplate = 
-            '<div class="bdt_filler_and_col_headers" style="width: <%= colHdrDims.w+fillerDims.w %>px; height: <%= colHdrDims.h %>px;">' +
+            '<div class="bdt_filler_and_colheaders" style="width: <%= colHdrDims.w+fillerDims.w %>px; height: <%= colHdrDims.h %>px;">' +
                 '<div class="bdt_filler" style="width: <%= fillerDims.w %>px; height: <%= fillerDims.h %>px; float:left;"></div>'+
-                '<div class="bdt_col_headers" style="width: <%= colHdrDims.w %>px; height: <%= colHdrDims.h %>px; overflow: hidden; flow:left;"></div>'+
+                '<div class="bdt_colheaders" style="width: <%= colHdrDims.w %>px; height: <%= colHdrDims.h %>px; overflow: hidden; flow:left;">' +
+                    '<div class="bdt_colheaders_canvas" style="width: <%= wDim.canvasSize() %>px; height: 100%">' +
+                        '<div class="bdt_colheaders_data" style="position: relative; left: <%= wDim.dataOffset() %>px; width: <%= wDim.dataSize() %>px; height: 100%;">' +
+                        '</div>' +
+                    '</div>' +
+                '</div>'+
             '</div>'+
-            '<div class="bdt_row_headers_and_content" style="width: <%= rowHdrDims.w+cntDims.w %>px; height: <%= cntDims.h %>px;">' +
-                '<div class="bdt_row_headers" style="width: <%= rowHdrDims.w %>px; height: <%= rowHdrDims.h %>px; float:left; overflow: hidden;"></div>' +
-                '<div class="bdt_content content scroll-standard" style="width: <%= cntDims.w %>px; height: <%= cntDims.h %>px; float:left;">' +
-                    '<div class="bdt_content_canvas resizable" style="width:  <%= wDim.canvasSize() %>px; height:  <%= hDim.dataSize() %>px;">' +
+            '<div class="bdt_rowheaders_and_content" style="width: <%= rowHdrDims.w+cntDims.w %>px; height: <%= cntDims.h %>px;">' +
+                '<div class="bdt_rowheaders" style="width: <%= rowHdrDims.w %>px; height: <%= rowHdrDims.h %>px; float:left; overflow: hidden;">' +
+                    '<div class="bdt_rowheaders_canvas" style="width: 100%; height: <%= hDim.canvasSize() %>px">' +
+                        '<div class="bdt_rowheaders_data" style="position: relative; top: <%= hDim.dataOffset() %>px; width: 100%; height: <%= hDim.dataSize() %>px;">' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="bdt_content" style="width: <%= cntDims.w %>px; height: <%= cntDims.h %>px; float:left;">' +
+                    '<div class="bdt_content_canvas" style="width:  <%= wDim.canvasSize() %>px; height:  <%= hDim.dataSize() %>px;">' +
                         '<div class="bdt_content_data" style="position: relative; top: <%= hDim.dataOffset() %>px; left: <%= wDim.dataOffset() %>px; width: <%= wDim.dataSize() %>px; height: <%= hDim.dataSize() %>px;">' +
                         '</div>' +
                     '</div>' +
@@ -165,8 +175,20 @@ function ScrollableDim(
 
         var rendered = _.template(allTemplate, { cntDims: cntDims, colHdrDims: colHdrDims, rowHdrDims: rowHdrDims, fillerDims: fillerDims, wDim: wDim, hDim: hDim });
         $this.append(rendered);
-        var scrollpane = $this.find('.bdt_content').scrollpane();
-        console.log($this.find('.bdt_content'));
+
+        var colHdrs = $this.find('.bdt_colheaders');
+        var rowHdrs = $this.find('.bdt_rowheaders');
+        var cntPane = $this.find('.bdt_content').scrollpane({
+            arrowButtonSpeedX: config.col.w,
+            arrowButtonSpeedY: config.row.h,
+            scrollCallback: function(x, y) {
+                colHdrs.scrollLeft(x);
+                rowHdrs.scrollTop(y);
+                console.log('*** scroll x: ' + x + ', y: ' + y);
+            },
+            scrollStopCallback: function(x, y) {
+                console.log('*** scroll stop x: ' + x + ', y: ' + y);
+            }});
 
         // populate Layer 2 elements
         var rowTemplate = '<div class="bdt_row_<%= row => row_<%= odd_even =>"><div>';

@@ -6,7 +6,7 @@
             arrowButtonSpeedY: 100,
             scrollCallback: function(x, y) { console.log('scroll x: ' + x + ', y: ' + y); },
             scrollStopCallback: function(x, y) { console.log('scroll stop x: ' + x + ', y: ' + y); }
-        });
+        }, config);
 
         var $this = this.jScrollPane(config);
         var api = $this.data('jsp');
