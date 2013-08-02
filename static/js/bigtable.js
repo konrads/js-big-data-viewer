@@ -165,7 +165,7 @@ function ScrollableDim(
 
         var rendered = _.template(allTemplate, { cntDims: cntDims, colHdrDims: colHdrDims, rowHdrDims: rowHdrDims, fillerDims: fillerDims, wDim: wDim, hDim: hDim });
         $this.append(rendered);
-        var scrollpane = $this.find('.bdt_content').scrollpane2();
+        var scrollpane = $this.find('.bdt_content').scrollpane();
         console.log($this.find('.bdt_content'));
 
         // populate Layer 2 elements

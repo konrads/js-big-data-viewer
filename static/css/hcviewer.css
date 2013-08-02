@@ -1,7 +1,7 @@
 .bdt_filler_and_col_headers { background-color: red; }
 .bdt_filler { background-color: brown; }
 .bdt_col_headers { background-color: pink; }
-.bdt_row_headers_and_content { background-color: green; }
+/* .bdt_row_headers_and_content { background-color: green; } */
 .bdt_row_headers { background-color: blue; }
 .bdt_content { background-color: yellow; }
 
