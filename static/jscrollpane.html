@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>JScrollPane Viewer</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <link href="css/vendor/jquery.jscrollpane.css" rel="stylesheet" />
+        <link href="css/vendor/jquery.jscrollpane.lozenge.css" rel="stylesheet" />
+
+        <script src="js/vendor/underscore.js"></script>
+        <script src="js/vendor/jquery.js"></script>
+        <script src="js/vendor/jquery.ba-dotimeout.js"></script>
+        <script src="js/vendor/jquery.mousewheel.js"></script>
+        <!-- script src="js/vendor/mwheelIntent.js"></script -->
+        <script src="js/vendor/jquery.jscrollpane.ks.js"></script>
+        <script>
+            $(document).ready(function(){
+                var $this = $('.scroll-pane').jScrollPane({showArrows: true, arrowButtonSpeedX: 100, arrowButtonSpeedY: 10 });
+                var api = $this.data('jsp');
+                $this.scroll(function() {
+                    var x = api.getContentPositionX();
+                    var y = api.getContentPositionY();
+                    console.log('scroll: x:' + x + ', y: ' + y);
+                    $.doTimeout('scroll', 300, function() {
+                        var x = api.getContentPositionX();
+                        var y = api.getContentPositionY();
+                        console.log('scrollstop: x:' + x + ', y: ' + y);
+                        // config.scrollCallback(x, y);
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body>
+
+        <div style="padding: 20px;">
+            <h2>JQuery JScrollPane</h2>
+            <div class="scroll-pane" style="width: 500px; height: 300px; overflow: auto;">
+            <img src="img/image.jpg" style="width:800px;height:600px;"></img>
+            </div>
+        </div>
+    </body>
+</html>

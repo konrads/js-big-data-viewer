@@ -4,17 +4,22 @@
         <title>HC Viewer</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-        <link href="css/vendor/jquery.scrollbar.css" rel="stylesheet" media="all" />
+        <link href="css/vendor/jquery.jscrollpane.css" rel="stylesheet" />
+        <link href="css/vendor/jquery.jscrollpane.lozenge.css" rel="stylesheet" />
+
+        <link href="css/hcviewer.css" rel="stylesheet" />
 
         <script src="js/vendor/underscore.js"></script>
         <script src="js/vendor/jquery.js"></script>
-        <script src="js/vendor/jquery.scrollbar.ks.js"></script>
         <script src="js/vendor/jquery.ba-dotimeout.js"></script>
+        <script src="js/vendor/jquery.mousewheel.js"></script>
+        <script src="js/vendor/jquery.jscrollpane.ks.js"></script>
+
         <script src="js/scrollpane.js"></script>
         <script src="js/bigtable.js"></script>
         <script>
             $(document).ready(function(){
-                $('.scroll-standard').scrollpane({scrollXStep: 10, scrollYStep: 100});
+                $('.scroll-pane').scrollpane2();
                 $('.bigtable').bigtable();
             });
         </script>
@@ -23,8 +28,8 @@
 
         <div style="padding: 20px;">
             <h2>Standard MS Windows Vista scrollbar</h2>
-            <div class="content scroll-standard">
-                <img src="img/image.jpg" class="resizable" style="width:800px;height:600px;" />
+            <div class="scroll-pane" style="width: 500px; height: 200px; overflow: auto;">
+                <img src="img/image.jpg" style="width:800px;height:600px;" />
             </div>
 
             <div class="bigtable">
