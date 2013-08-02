@@ -6,7 +6,7 @@ Layer 1:
 +---------+-----------------------++
 |         |                        |
 |  row    |                        |
-|         |       content          |
+|         |       cnt          |
 | headers |                        |
 |         |                        |
 |         |                        |
@@ -16,17 +16,17 @@ Layer 1:
                                   ||
                     room for optional scrollbar
 
-Column headers, row headers and content are all scrollable.  The structure (based on content)
+Column headers, row headers and cnt are all scrollable.  The structure (based on cnt)
 looks like:
 
 Layer 2:
 +-----------------------------------------------------
-| content_canvas                                      
+| cnt_canvas                                      
 |                                                     
 |   +----------------------------------------+        
-|   | content_data                           |        
+|   | cnt_data                           |        
 |   |    +-----------------------------+     |        
-|   |    |  content (view)             |     |        
+|   |    |  cnt (view)             |     |        
 |   |    |                             |     |        
 |   |    |                             |     |        
 |   |    |                             |     |        
@@ -37,15 +37,15 @@ Layer 2:
 |                                                     
 |                                                     
 
-- content (view) shows portion of the content_canvas in a scrollable way
-- content_canvas represents the entire table.  Due to browser performance/memory restraints,
-  I only populate portion of the canvas - content_data
-- content_data is a predefined grid, floating on top of the canvas.  If a scrollbar moves,
-  data is repopulated and repositioned to match the view.  Data is larger than content so that
+- cnt (view) shows portion of the cnt_canvas in a scrollable way
+- cnt_canvas represents the entire table.  Due to browser performance/memory restraints,
+  I only populate portion of the canvas - cnt_data
+- cnt_data is a predefined grid, floating on top of the canvas.  If a scrollbar moves,
+  data is repopulated and repositioned to match the view.  Data is larger than cnt so that
   scrolling gives impression of continuous data being present (whilst we repopulate & reposition data)
 
 
-content_data structure:
+cnt_data structure:
 +--------------------+--------------------+--------------------+---
 |  id="cell_0_0"     |  id="cell_1_0"     |   id="cell_2_0"    |
 +--------------------+--------------------+--------------------+---
@@ -107,8 +107,8 @@ function ScrollableDim(
             col: { currInd: 0, cnt: 10, visible: 5, buffer: 1, w: 100, h: 50 },
             row: { currInd: 0, cnt: 4,  visible: 2, buffer: 1, w: 150, h: 50 },
 
-            // dummy content generator
-            contentFetcher: function(col, row, colCnt, rowCnt) {
+            // dummy cnt generator
+            cntFetcher: function(col, row, colCnt, rowCnt) {
                 var buffer = 5;
                 var colRange = { min: col-config.col.buffer, max: col+colCnt+config.col.buffer };
                 var rowRange = { min: row-config.row.buffer, max: row+rowCnt+config.row.buffer };
@@ -146,25 +146,25 @@ function ScrollableDim(
         var hDim = new ScrollableDim(config.row.currInd, config.row.cnt, config.row.visible, config.row.buffer, config.row.h);
 
         var allTemplate = 
-            '<div class="bdt_filler_and_colheaders" style="width: <%= colHdrDims.w+fillerDims.w %>px; height: <%= colHdrDims.h %>px;">' +
+            '<div class="bdt_filler_and_colhdrs" style="width: <%= colHdrDims.w+fillerDims.w %>px; height: <%= colHdrDims.h %>px;">' +
                 '<div class="bdt_filler" style="width: <%= fillerDims.w %>px; height: <%= fillerDims.h %>px; float:left;"></div>'+
-                '<div class="bdt_colheaders" style="width: <%= colHdrDims.w %>px; height: <%= colHdrDims.h %>px; overflow: hidden; flow:left;">' +
-                    '<div class="bdt_colheaders_canvas" style="width: <%= wDim.canvasSize() %>px; height: 100%">' +
-                        '<div class="bdt_colheaders_data" style="position: relative; left: <%= wDim.dataOffset() %>px; width: <%= wDim.dataSize() %>px; height: 100%;">' +
+                '<div class="bdt_colhdrs" style="width: <%= colHdrDims.w %>px; height: <%= colHdrDims.h %>px; overflow: hidden; flow:left;">' +
+                    '<div class="bdt_colhdrs_canvas" style="width: <%= wDim.canvasSize() %>px; height: 100%">' +
+                        '<div class="bdt_colhdrs_data" style="position: relative; left: <%= wDim.dataOffset() %>px; width: <%= wDim.dataSize() %>px; height: 100%;">' +
                         '</div>' +
                     '</div>' +
                 '</div>'+
             '</div>'+
-            '<div class="bdt_rowheaders_and_content" style="width: <%= rowHdrDims.w+cntDims.w %>px; height: <%= cntDims.h %>px;">' +
-                '<div class="bdt_rowheaders" style="width: <%= rowHdrDims.w %>px; height: <%= rowHdrDims.h %>px; float:left; overflow: hidden;">' +
-                    '<div class="bdt_rowheaders_canvas" style="width: 100%; height: <%= hDim.canvasSize() %>px">' +
-                        '<div class="bdt_rowheaders_data" style="position: relative; top: <%= hDim.dataOffset() %>px; width: 100%; height: <%= hDim.dataSize() %>px;">' +
+            '<div class="bdt_rowhdrs_and_cnt" style="width: <%= rowHdrDims.w+cntDims.w %>px; height: <%= cntDims.h %>px;">' +
+                '<div class="bdt_rowhdrs" style="width: <%= rowHdrDims.w %>px; height: <%= rowHdrDims.h %>px; float:left; overflow: hidden;">' +
+                    '<div class="bdt_rowhdrs_canvas" style="width: 100%; height: <%= hDim.canvasSize() %>px">' +
+                        '<div class="bdt_rowhdrs_data" style="position: relative; top: <%= hDim.dataOffset() %>px; width: 100%; height: <%= hDim.dataSize() %>px;">' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
-                '<div class="bdt_content" style="width: <%= cntDims.w %>px; height: <%= cntDims.h %>px; float:left;">' +
-                    '<div class="bdt_content_canvas" style="width:  <%= wDim.canvasSize() %>px; height:  <%= hDim.dataSize() %>px;">' +
-                        '<div class="bdt_content_data" style="position: relative; top: <%= hDim.dataOffset() %>px; left: <%= wDim.dataOffset() %>px; width: <%= wDim.dataSize() %>px; height: <%= hDim.dataSize() %>px;">' +
+                '<div class="bdt_cnt" style="width: <%= cntDims.w %>px; height: <%= cntDims.h %>px; float:left;">' +
+                    '<div class="bdt_cnt_canvas" style="width:  <%= wDim.canvasSize() %>px; height:  <%= hDim.dataSize() %>px;">' +
+                        '<div class="bdt_cnt_data" style="position: relative; top: <%= hDim.dataOffset() %>px; left: <%= wDim.dataOffset() %>px; width: <%= wDim.dataSize() %>px; height: <%= hDim.dataSize() %>px;">' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
@@ -176,9 +176,9 @@ function ScrollableDim(
         var rendered = _.template(allTemplate, { cntDims: cntDims, colHdrDims: colHdrDims, rowHdrDims: rowHdrDims, fillerDims: fillerDims, wDim: wDim, hDim: hDim });
         $this.append(rendered);
 
-        var colHdrs = $this.find('.bdt_colheaders');
-        var rowHdrs = $this.find('.bdt_rowheaders');
-        var cntPane = $this.find('.bdt_content').scrollpane({
+        var colHdrs = $this.find('.bdt_colhdrs');
+        var rowHdrs = $this.find('.bdt_rowhdrs');
+        var cntPane = $this.find('.bdt_cnt').scrollpane({
             arrowButtonSpeedX: config.col.w,
             arrowButtonSpeedY: config.row.h,
             scrollCallback: function(x, y) {
@@ -193,7 +193,7 @@ function ScrollableDim(
         // populate Layer 2 elements
         var rowTemplate = '<div class="bdt_row_<%= row => row_<%= odd_even =>"><div>';
         var colTemplate = '<div class';
-        var contentTemplate = '';
+        var cntTemplate = '';
 
     }
 })(jQuery);
