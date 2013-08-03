@@ -181,7 +181,8 @@ function ScrollableDim(
 
         var colHdrTemplate = '<div id="<%= id %>" class="bdt_colhdr" style="width: <%= col.w %>px; height: <%= col.h %>px; float: left;"></div>';
         var rowHdrTemplate = '<div id="<%= id %>" class="bdt_rowhdr" style="width: <%= row.w %>px; height: <%= row.h %>px;"></div>';
-        var cellTemplate = '<div id="<%= id %>" class="bdt_cnt_cell" style="width: <%= cell.w %>px; height: <%= cell.h %>px;"></div>';
+        var cellRowTemplate = '<div id="<%= id %>" class="bdt_cnt_row"><%= cells %></div>';
+        var cellTemplate = '<div id="<%= id %>" class="bdt_cnt_cell" style="width: <%= cell.w %>px; height: <%= cell.h %>px; float: left;"></div>';
 
         var allTemplate = 
             '<div class="bdt_filler_and_colhdrs" style="width: <%= colHdrDims.w+fillerDims.w %>px; height: <%= colHdrDims.h %>px;">' +
@@ -205,6 +206,19 @@ function ScrollableDim(
                 '<div class="bdt_cnt" style="width: <%= cntDims.w %>px; height: <%= cntDims.h %>px; float:left;">' +
                     '<div class="bdt_cnt_canvas" style="width:  <%= colDim.canvasSize() %>px; height:  <%= rowDim.canvasSize() %>px; overflow: hidden;">' +
                         '<div class="bdt_cnt_data" style="position: relative; top: <%= rowDim.dataOffset() %>px; left: <%= colDim.dataOffset() %>px; width: <%= colDim.dataSize() %>px; height: <%= rowDim.dataSize() %>px;">' +
+                            _.map(_.range(
+                                rowDim.dataIndsCnt()),
+                                function(r) {
+                                    var cells = _.map(_.range(
+                                        colDim.dataIndsCnt()),
+                                        function(c) {
+                                            return _.template(cellTemplate, { id: 'cell_r'+r+'_c'+c, cell: { w: config.col.w, h: config.row.h }})
+                                        }
+                                    ).join('');
+                                    console.log(cells);
+                                    return _.template(cellRowTemplate, { id: 'cellr'+r, cells: cells });
+                                }
+                            ).join('') +
                         '</div>' +
                     '</div>' +
                 '</div>' +
