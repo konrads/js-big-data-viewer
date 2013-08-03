@@ -1,6 +1,5 @@
-.bdt_filler_and_colhdrs { background-color: red; }
-.bdt_filler { background-color: brown; }
-
+/* .bdt_filler_and_colhdrs { background-color: red; }
+.bdt_filler { background-color: brown; } */
 .bdt_colhdrs { background-color: pink; }
 .bdt_colhdrs_canvas { background-color: HotPink; }
 .bdt_colhdrs_data { background-color: Salmon; }

@@ -127,6 +127,10 @@ function ScrollableDim(
         }
     };
 
+    this.dataIndsCnt = function() {
+        return buffer+visible+buffer;
+    };
+
     this.dataSize = function() {
         return (buffer+visible+buffer) * size;
     };
@@ -144,7 +148,7 @@ function ScrollableDim(
 
         var config = $.extend(config, {
             col: { currInd: 0, cnt: 10, visible: 5, buffer: 1, w: 100, h: 50 },
-            row: { currInd: 0, cnt: 4,  visible: 2, buffer: 1, w: 150, h: 50 },
+            row: { currInd: 0, cnt: 6,  visible: 4, buffer: 1, w: 150, h: 50 },
 
             // dummy content generator
             contentFetcher: function(colMin, colMax, rowMin, rowMax, callback) {
@@ -164,8 +168,8 @@ function ScrollableDim(
 
         // populate Layer 1 elements
         var scrollbarDims = {
-            w: config.col.visible < config.col.cnt ? 16 : 0,
-            h: config.row.visible < config.row.cnt ? 16 : 0
+            w: config.row.visible < config.row.cnt ? 16 : 0,
+            h: config.col.visible < config.col.cnt ? 16 : 0
         };
         var cntDims = { w: config.col.visible*config.col.w + scrollbarDims.w, h: config.row.visible*config.row.h + scrollbarDims.h };
         var fillerDims = { w: config.row.w, h: config.col.h };
@@ -175,12 +179,17 @@ function ScrollableDim(
         var colDim = new ScrollableDim(config.col.currInd, config.col.cnt, config.col.visible, config.col.buffer, config.col.w);
         var rowDim = new ScrollableDim(config.row.currInd, config.row.cnt, config.row.visible, config.row.buffer, config.row.h);
 
+        var colHdrTemplate = '<div id="<%= id %>" class="bdt_colhdr" style="width: <%= col.w %>px; height: <%= col.h %>px; float: left;"></div>';
+        var rowHdrTemplate = '<div id="<%= id %>" class="bdt_rowhdr" style="width: <%= row.w %>px; height: <%= row.h %>px;"></div>';
+        var cellTemplate = '<div id="<%= id %>" class="bdt_cnt_cell" style="width: <%= cell.w %>px; height: <%= cell.h %>px;"></div>';
+
         var allTemplate = 
             '<div class="bdt_filler_and_colhdrs" style="width: <%= colHdrDims.w+fillerDims.w %>px; height: <%= colHdrDims.h %>px;">' +
                 '<div class="bdt_filler" style="width: <%= fillerDims.w %>px; height: <%= fillerDims.h %>px; float:left;"></div>'+
                 '<div class="bdt_colhdrs" style="width: <%= colHdrDims.w %>px; height: <%= colHdrDims.h %>px; overflow: hidden; flow:left;">' +
                     '<div class="bdt_colhdrs_canvas" style="width: <%= colDim.canvasSize() %>px; height: 100%">' +
                         '<div class="bdt_colhdrs_data" style="position: relative; left: <%= colDim.dataOffset() %>px; width: <%= colDim.dataSize() %>px; height: 100%;">' +
+                            _.map(_.range(colDim.dataIndsCnt()), function(c) { return _.template(colHdrTemplate, { id: 'c'+c, col: config.col })}).join('') +
                         '</div>' +
                     '</div>' +
                 '</div>'+
@@ -189,19 +198,17 @@ function ScrollableDim(
                 '<div class="bdt_rowhdrs" style="width: <%= rowHdrDims.w %>px; height: <%= rowHdrDims.h %>px; float:left; overflow: hidden;">' +
                     '<div class="bdt_rowhdrs_canvas" style="width: 100%; height: <%= rowDim.canvasSize() %>px">' +
                         '<div class="bdt_rowhdrs_data" style="position: relative; top: <%= rowDim.dataOffset() %>px; width: 100%; height: <%= rowDim.dataSize() %>px;">' +
+                            _.map(_.range(rowDim.dataIndsCnt()), function(r) { return _.template(rowHdrTemplate, { id: 'r'+r, row: config.row })}).join('') +
                         '</div>' +
                     '</div>' +
                 '</div>' +
                 '<div class="bdt_cnt" style="width: <%= cntDims.w %>px; height: <%= cntDims.h %>px; float:left;">' +
-                    '<div class="bdt_cnt_canvas" style="width:  <%= colDim.canvasSize() %>px; height:  <%= rowDim.dataSize() %>px;">' +
+                    '<div class="bdt_cnt_canvas" style="width:  <%= colDim.canvasSize() %>px; height:  <%= rowDim.canvasSize() %>px; overflow: hidden;">' +
                         '<div class="bdt_cnt_data" style="position: relative; top: <%= rowDim.dataOffset() %>px; left: <%= colDim.dataOffset() %>px; width: <%= colDim.dataSize() %>px; height: <%= rowDim.dataSize() %>px;">' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
             '</div>';
-
-        var colHdrTemplate = '<div class="bdt_colhdr hdr.class" style="height: <%= col.w %>px; height: <%= col.h =>; float: left"><%= hdr.val =></div>';
-        var rowHdrTemplate = '<div class="bdt_rowhdr hdr.class" style="height: <%= row.w %>px; height: <%= row.h =>"><%= hdr.val =></div>';
 
         $this.width (fillerDims.w + colHdrDims.w + scrollbarDims.w);
         $this.height(fillerDims.h + rowHdrDims.h + scrollbarDims.h);
@@ -233,7 +240,10 @@ function ScrollableDim(
 
         this.contentFetch = function(callback) {
             console.log('** inside contentFetch');
-            config.contentFetcher(colDim.pageStart(), colDim.pageEnd(), rowDim.pageStart(), rowDim.pageEnd(), callback);
+            function render(cols, rows, vals) {
+
+            }
+            config.contentFetcher(colDim.pageStart(), colDim.pageEnd(), rowDim.pageStart(), rowDim.pageEnd(), render);
         };
 
         var cntPane = $this.find('.bdt_cnt').scrollpane({
