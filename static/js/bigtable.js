@@ -52,33 +52,13 @@ cnt_data structure:
 |  id="cell_0_1"     |  id="cell_1_1"     |   id="cell_2_1"    |
 +--------------------+--------------------+--------------------+---
 
+
+
+custom events propagated out:
+
 */
 
-function Controller(view) {
-    var $this = this;
-
-    this.scroll = function(x, y) {
-        console.log('*** scroll x: ' + x + ', y: ' + y);
-        view.scrollCol(x);
-        view.scrollRow(y);
-    };
-
-    this.scrollStop = function(x, y) {
-        console.log('*** scroll STOP x: ' + x + ', y: ' + y);
-        view.enable(false);
-        view.contentFetch($this.populate);
-    };
-
-    this.populate = function(cols, rows, vals) {
-        console.log('cols: ' + cols);
-        console.log('rows: ' + rows);
-        console.log('vals: ' + vals);
-        // populate results
-        view.enable(true);
-    };
-}
-
-function ScrollableDim(
+function DimHelper(
         currInd,          // starting index of visible area
         cnt,              // number of all values
         visible,          // number of values displayable at any moment
@@ -119,7 +99,6 @@ function ScrollableDim(
 
     // getter/setter
     this.dataOffset = function(val) {
-        // console.log('val:' + val + ', dataOffset: ' + dataOffset + ', buffer: ' + buffer + ', visible: ' + visible + ', size: ' + size);
         if (val == undefined) return dataOffset;
         else {
             currInd = Math.floor(val/size) - buffer;
@@ -151,7 +130,7 @@ function ScrollableDim(
             row: { currInd: 0, cnt: 6,  visible: 4, buffer: 1, w: 150, h: 50 },
 
             // dummy content generator
-            contentFetcher: function(colMin, colMax, rowMin, rowMax, callback) {
+            contentFetch: function(colMin, colMax, rowMin, rowMax, callback) {
                 var cols = _.map(_.range(colMin, colMax+1), function(c) { return 'c' + c; });
                 var rows = _.map(_.range(rowMin, rowMax+1), function(r) { return 'r' + r; });
                 var vals =  _.map(rows, function(r) {
@@ -164,8 +143,6 @@ function ScrollableDim(
             }
         });
 
-        controller = new Controller($this, config.contentFetcher);
-
         // populate Layer 1 elements
         var scrollbarDims = {
             w: config.row.visible < config.row.cnt ? 16 : 0,
@@ -176,8 +153,8 @@ function ScrollableDim(
         var colHdrDims = { w: config.col.visible*config.col.w, h: config.col.h };
         var rowHdrDims = { w: config.row.w, h: config.row.visible*config.row.h };
 
-        var colDim = new ScrollableDim(config.col.currInd, config.col.cnt, config.col.visible, config.col.buffer, config.col.w);
-        var rowDim = new ScrollableDim(config.row.currInd, config.row.cnt, config.row.visible, config.row.buffer, config.row.h);
+        var colDim = new DimHelper(config.col.currInd, config.col.cnt, config.col.visible, config.col.buffer, config.col.w);
+        var rowDim = new DimHelper(config.row.currInd, config.row.cnt, config.row.visible, config.row.buffer, config.row.h);
 
         var colHdrTemplate = '<div id="<%= id %>" class="bdt_colhdr" style="width: <%= col.w %>px; height: <%= col.h %>px; float: left;"></div>';
         var rowHdrTemplate = '<div id="<%= id %>" class="bdt_rowhdr" style="width: <%= row.w %>px; height: <%= row.h %>px;"></div>';
@@ -215,7 +192,6 @@ function ScrollableDim(
                                             return _.template(cellTemplate, { id: 'cell_r'+r+'_c'+c, cell: { w: config.col.w, h: config.row.h }})
                                         }
                                     ).join('');
-                                    console.log(cells);
                                     return _.template(cellRowTemplate, { id: 'cellr'+r, cells: cells });
                                 }
                             ).join('') +
@@ -230,46 +206,45 @@ function ScrollableDim(
         var rendered = _.template(allTemplate, { cntDims: cntDims, colHdrDims: colHdrDims, rowHdrDims: rowHdrDims, fillerDims: fillerDims, colDim: colDim, rowDim: rowDim });
         $this.append(rendered);
 
-        // prepopulate cols and rows
-        // var colHdrs = $this.find('.bdt_colhdrs');
-        // _.map().join()
-
+        $this.find('.bdt_cnt').scrollpane({
+            arrowButtonSpeedX: config.col.w,
+            arrowButtonSpeedY: config.row.h,
+            scrollCallback: function(x, y) {
+                // console.log('*** scroll x: ' + x + ', y: ' + y);
+                colHdrs.scrollLeft(x);
+                colDim.dataOffset(x);
+                rowHdrs.scrollTop(y);
+                rowDim.dataOffset(y);
+                $this.trigger('scroll_cont', [x, y]);
+            },
+            scrollStopCallback: function(x, y) {
+                // console.log('*** scroll STOP x: ' + x + ', y: ' + y);
+                enable(false);
+                $this.trigger('scroll_stop', [x, y]);
+                var colMin = colDim.pageStart();
+                var colMax = colDim.pageEnd();
+                var rowMin = rowDim.pageStart();
+                var rowMax = rowDim.pageEnd();
+                var dataOffset = { w: 0, h: 0 };
+                config.contentFetch(colMin, colMax, rowMin, rowMax, function(cols, rows, vals) {
+                    // populate data
+                    // adjust data positioning
+                    // finished - enable
+                    enable(true);
+                    $this.trigger('populated', [cols, rows, vals]);
+                });
+            }
+        });
 
         var colHdrs = $this.find('.bdt_colhdrs');
         var rowHdrs = $this.find('.bdt_rowhdrs');
 
-        this.scrollCol = function(x) {
-            colHdrs.scrollLeft(x);
-            colDim.dataOffset(x);
-        };
-
-        this.scrollRow = function(y) {
-            rowHdrs.scrollTop(y);
-            rowDim.dataOffset(y);
-        };
-
-        this.enable = function(b) {
+        // private methods
+        function enable(b) {
             console.log('** enable: ' + b);
         };
 
-        this.contentFetch = function(callback) {
-            console.log('** inside contentFetch');
-            function render(cols, rows, vals) {
-
-            }
-            config.contentFetcher(colDim.pageStart(), colDim.pageEnd(), rowDim.pageStart(), rowDim.pageEnd(), render);
-        };
-
-        var cntPane = $this.find('.bdt_cnt').scrollpane({
-            arrowButtonSpeedX: config.col.w,
-            arrowButtonSpeedY: config.row.h,
-            scrollCallback: controller.scroll,
-            scrollStopCallback: controller.scrollStop});
-
-        // populate Layer 2 elements
-        var rowTemplate = '<div class="bdt_row_<%= row => row_<%= odd_even =>"><div>';
-        var colTemplate = '<div class';
-        var cntTemplate = '';
+        return $this;
 
     }
 })(jQuery);
