@@ -93,7 +93,7 @@ function DimHelper(
     };
 
     this.pageEnd = function() {
-        return buffer + currInd + visible + buffer;
+        return currInd + visible + buffer;
     };
 
 
@@ -131,8 +131,8 @@ function DimHelper(
 
             // dummy content generator
             contentFetch: function(colMin, colMax, rowMin, rowMax, callback) {
-                var cols = _.map(_.range(colMin, colMax+1), function(c) { return 'c' + c; });
-                var rows = _.map(_.range(rowMin, rowMax+1), function(r) { return 'r' + r; });
+                var cols = _.map(_.range(colMin, colMax), function(c) { return 'c' + c; });
+                var rows = _.map(_.range(rowMin, rowMax), function(r) { return 'r' + r; });
                 var vals =  _.map(rows, function(r) {
                     return _.map(cols, function(c) {
                         return r + c;
@@ -140,7 +140,13 @@ function DimHelper(
                 });
 
                 callback(cols, rows, vals);
-            }
+            },
+
+            // means of controlling header/cell look and feel
+            populateColHdr: function(hdrDiv, val, ind) { hdrDiv.innerHTML = val; },
+            populateRowHdr: function(hdrDiv, val, ind) { hdrDiv.innerHTML = val; },
+            fixCellRow:     function(cellRow, ind) {},
+            populateCell:   function(cell, val, xInd) { cell.innerHTML = val; }
         });
 
         // populate Layer 1 elements
@@ -206,6 +212,13 @@ function DimHelper(
         var rendered = _.template(allTemplate, { cntDims: cntDims, colHdrDims: colHdrDims, rowHdrDims: rowHdrDims, fillerDims: fillerDims, colDim: colDim, rowDim: rowDim });
         $this.append(rendered);
 
+        // cache headers and contents for easy population
+        var cache = {
+            colHdrs: $.makeArray($this.find('.bdt_colhdrs_data > .bdt_colhdr')),  // list of header divs
+            rowHdrs: $.makeArray($this.find('.bdt_rowhdrs_data > .bdt_rowhdr')),  // list of header divs
+            cntRows: _.map($this.find('.bdt_cnt_data > .bdt_cnt_row'), function(r) { return [r, $.makeArray($(r).children())]; })      // list of content [row_div, [row_cell]]
+        };
+
         $this.find('.bdt_cnt').scrollpane({
             arrowButtonSpeedX: config.col.w,
             arrowButtonSpeedY: config.row.h,
@@ -228,7 +241,20 @@ function DimHelper(
                 var dataOffset = { w: 0, h: 0 };
                 config.contentFetch(colMin, colMax, rowMin, rowMax, function(cols, rows, vals) {
                     // populate data
+                    cache.colHdrs.forEach(function(colHdr, i) { config.populateColHdr(colHdr, cols[i], i); });
+                    cache.rowHdrs.forEach(function(rowHdr, i) { config.populateRowHdr(rowHdr, rows[i], i); });
+                    cache.cntRows.forEach(function(rowAndChildren, y) {
+                        var cellRow = rowAndChildren[0];
+                        var cells = rowAndChildren[1];
+                        config.fixCellRow(cellRow, y);
+                        console.log('=====');
+                        console.log(y);
+                        console.log(cells);
+                        cells.forEach(function(cell, x) { config.populateCell(cell, vals[y][x], x); });
+                    });
+
                     // adjust data positioning
+
                     // finished - enable
                     enable(true);
                     $this.trigger('populated', [cols, rows, vals]);
