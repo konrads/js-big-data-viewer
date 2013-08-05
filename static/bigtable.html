@@ -21,7 +21,7 @@
             $(document).ready(function(){
                 $('.scroll-pane').scrollpane();
                 var bigtable = $('.bigtable').bigtable()
-                    .on('scroll_cont', function(event, x, y) { console.log('scroll cont: x: ' + x + ', y: ' + y); })
+                    //.on('scroll_cont', function(event, x, y) { console.log('scroll cont: x: ' + x + ', y: ' + y); })
                     .on('scroll_stop', function(event, x, y) { console.log('scroll stop: x: ' + x + ', y: ' + y); })
                     .on('populated', function(event, cols, rows, vals) { console.log('populated: cols: ' + cols + ', rows: ' + rows + ', vals: ' + vals); });
 

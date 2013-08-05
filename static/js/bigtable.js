@@ -65,8 +65,6 @@ function DimHelper(
         buffer,           // buffer used for prefetching data.  Fetch set = buffer + visible area + buffer
         size) {           // size in pixels
     
-    var dataOffset = (currInd-buffer)*size;
-
     this.inds = function() {
         return {
             min: Math.max(0, currInd-buffer),
@@ -84,27 +82,22 @@ function DimHelper(
         }
     };
 
+    this.scrollTo = function(val) {
+        this.currInd(Math.round(val/size));
+    }
+
+    this.dataOffset = function() {
+        return dataOffset;
+    };
+
     this.pageStart = function(val) {
-        if (val === undefined) return currInd - buffer;
-        else {
-            currInd = val + buffer;
-            // NOTE: not setting dataOffset, should be set already by scrolling...
-        }
+        return currInd - buffer;
     };
 
     this.pageEnd = function() {
         return currInd + visible + buffer;
     };
 
-
-    // getter/setter
-    this.dataOffset = function(val) {
-        if (val == undefined) return dataOffset;
-        else {
-            currInd = Math.floor(val/size) - buffer;
-            dataOffset = val;
-        }
-    };
 
     this.dataIndsCnt = function() {
         return buffer+visible+buffer;
@@ -117,6 +110,10 @@ function DimHelper(
     this.canvasSize = function() {
         return cnt * size;
     };
+
+    // initialize
+    var dataOffset;
+    this.currInd(currInd);
 } 
 
 
@@ -212,11 +209,15 @@ function DimHelper(
         var rendered = _.template(allTemplate, { cntDims: cntDims, colHdrDims: colHdrDims, rowHdrDims: rowHdrDims, fillerDims: fillerDims, colDim: colDim, rowDim: rowDim });
         $this.append(rendered);
 
-        // cache headers and contents for easy population
+        // cache for elements used later on
         var cache = {
             colHdrs: $.makeArray($this.find('.bdt_colhdrs_data > .bdt_colhdr')),  // list of header divs
             rowHdrs: $.makeArray($this.find('.bdt_rowhdrs_data > .bdt_rowhdr')),  // list of header divs
-            cntRows: _.map($this.find('.bdt_cnt_data > .bdt_cnt_row'), function(r) { return [r, $.makeArray($(r).children())]; })      // list of content [row_div, [row_cell]]
+            cntRows: _.map($this.find('.bdt_cnt_data > .bdt_cnt_row'), function(r) { return [r, $.makeArray($(r).children())]; }),      // list of content [row_div, [row_cell]]
+
+            bdtColhdrsData: $this.find('.bdt_colhdrs_data'),
+            bdtRowhdrsData: $this.find('.bdt_rowhdrs_data'),
+            bdtCntData:  $this.find('.bdt_cnt_data')
         };
 
         $this.find('.bdt_cnt').scrollpane({
@@ -225,20 +226,21 @@ function DimHelper(
             scrollCallback: function(x, y) {
                 // console.log('*** scroll x: ' + x + ', y: ' + y);
                 colHdrs.scrollLeft(x);
-                colDim.dataOffset(x);
                 rowHdrs.scrollTop(y);
-                rowDim.dataOffset(y);
                 $this.trigger('scroll_cont', [x, y]);
             },
             scrollStopCallback: function(x, y) {
                 // console.log('*** scroll STOP x: ' + x + ', y: ' + y);
                 enable(false);
                 $this.trigger('scroll_stop', [x, y]);
+                colDim.scrollTo(x);
+                rowDim.scrollTo(y);
                 var colMin = colDim.pageStart();
                 var colMax = colDim.pageEnd();
                 var rowMin = rowDim.pageStart();
                 var rowMax = rowDim.pageEnd();
-                var dataOffset = { w: 0, h: 0 };
+                var colOffset = colDim.dataOffset();
+                var rowOffset = rowDim.dataOffset();
                 config.contentFetch(colMin, colMax, rowMin, rowMax, function(cols, rows, vals) {
                     // populate data
                     cache.colHdrs.forEach(function(colHdr, i) { config.populateColHdr(colHdr, cols[i], i); });
@@ -247,13 +249,14 @@ function DimHelper(
                         var cellRow = rowAndChildren[0];
                         var cells = rowAndChildren[1];
                         config.fixCellRow(cellRow, y);
-                        console.log('=====');
-                        console.log(y);
-                        console.log(cells);
                         cells.forEach(function(cell, x) { config.populateCell(cell, vals[y][x], x); });
-                    });
 
-                    // adjust data positioning
+                        // reposition 'data' divs
+                        cache.bdtColhdrsData.css({left: colOffset});
+                        cache.bdtRowhdrsData.css({top: rowOffset});
+                        cache.bdtCntData.css({left: colOffset, top: rowOffset});
+                        // console.log({left: colOffset, top: rowOffset});
+                    });
 
                     // finished - enable
                     enable(true);
