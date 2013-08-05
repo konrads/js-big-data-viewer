@@ -84,7 +84,11 @@ function DimHelper(
 
     this.scrollTo = function(val) {
         this.currInd(Math.round(val/size));
-    }
+    };
+
+    this.scrollPos = function() {
+        return currInd*size;
+    };
 
     this.dataOffset = function() {
         return dataOffset;
@@ -122,7 +126,7 @@ function DimHelper(
     $.fn.bigtable = function(config) {
         var $this = this;
 
-        var config = $.extend(config, {
+        var config = $.extend({
             col: { currInd: 0, cnt: 10, visible: 5, buffer: 1, w: 100, h: 50 },
             row: { currInd: 0, cnt: 6,  visible: 4, buffer: 1, w: 150, h: 50 },
 
@@ -143,8 +147,8 @@ function DimHelper(
             populateColHdr: function(hdrDiv, val, ind) { hdrDiv.innerHTML = val; },
             populateRowHdr: function(hdrDiv, val, ind) { hdrDiv.innerHTML = val; },
             fixCellRow:     function(cellRow, ind) {},
-            populateCell:   function(cell, val, xInd) { cell.innerHTML = val; }
-        });
+            populateCell:   function(cell, val, xInd, yInd) { cell.innerHTML = val; }
+        }, config);
 
         // populate Layer 1 elements
         var scrollbarDims = {
@@ -215,63 +219,77 @@ function DimHelper(
             rowHdrs: $.makeArray($this.find('.bdt_rowhdrs_data > .bdt_rowhdr')),  // list of header divs
             cntRows: _.map($this.find('.bdt_cnt_data > .bdt_cnt_row'), function(r) { return [r, $.makeArray($(r).children())]; }),      // list of content [row_div, [row_cell]]
 
-            bdtColhdrsData: $this.find('.bdt_colhdrs_data'),
-            bdtRowhdrsData: $this.find('.bdt_rowhdrs_data'),
-            bdtCntData:  $this.find('.bdt_cnt_data')
+            colhdrsDataDiv: $this.find('.bdt_colhdrs_data'),
+            rowhdrsDataDiv: $this.find('.bdt_rowhdrs_data'),
+            cntDataDiv:  $this.find('.bdt_cnt_data'),
+
+            colHdrsDiv: $this.find('.bdt_colhdrs'),
+            rowHdrsDiv: $this.find('.bdt_rowhdrs'),
+
+            cntDiv: $this.find('.bdt_cnt')
         };
 
-        $this.find('.bdt_cnt').scrollpane({
-            arrowButtonSpeedX: config.col.w,
-            arrowButtonSpeedY: config.row.h,
-            scrollCallback: function(x, y) {
-                // console.log('*** scroll x: ' + x + ', y: ' + y);
-                colHdrs.scrollLeft(x);
-                rowHdrs.scrollTop(y);
-                $this.trigger('scroll_cont', [x, y]);
-            },
-            scrollStopCallback: function(x, y) {
-                // console.log('*** scroll STOP x: ' + x + ', y: ' + y);
-                enable(false);
-                $this.trigger('scroll_stop', [x, y]);
-                colDim.scrollTo(x);
-                rowDim.scrollTo(y);
-                var colMin = colDim.pageStart();
-                var colMax = colDim.pageEnd();
-                var rowMin = rowDim.pageStart();
-                var rowMax = rowDim.pageEnd();
-                var colOffset = colDim.dataOffset();
-                var rowOffset = rowDim.dataOffset();
-                config.contentFetch(colMin, colMax, rowMin, rowMax, function(cols, rows, vals) {
-                    // populate data
-                    cache.colHdrs.forEach(function(colHdr, i) { config.populateColHdr(colHdr, cols[i], i); });
-                    cache.rowHdrs.forEach(function(rowHdr, i) { config.populateRowHdr(rowHdr, rows[i], i); });
-                    cache.cntRows.forEach(function(rowAndChildren, y) {
-                        var cellRow = rowAndChildren[0];
-                        var cells = rowAndChildren[1];
-                        config.fixCellRow(cellRow, y);
-                        cells.forEach(function(cell, x) { config.populateCell(cell, vals[y][x], x); });
+        function stoppedScrolling(x, y) {
+            // console.log('*** scroll STOP x: ' + x + ', y: ' + y);
+            enable(false);
+            $this.trigger('scroll_stop', [x, y]);
+            colDim.scrollTo(x);
+            rowDim.scrollTo(y);
+            var colMin = colDim.pageStart();
+            var colMax = colDim.pageEnd();
+            var rowMin = rowDim.pageStart();
+            var rowMax = rowDim.pageEnd();
+            var colOffset = colDim.dataOffset();
+            var rowOffset = rowDim.dataOffset();
+            config.contentFetch(colMin, colMax, rowMin, rowMax, function(cols, rows, vals) {
+                // populate data
+                cache.colHdrs.forEach(function(colHdr, i) { config.populateColHdr(colHdr, cols[i], i); });
+                cache.rowHdrs.forEach(function(rowHdr, i) { config.populateRowHdr(rowHdr, rows[i], i); });
+                cache.cntRows.forEach(function(rowAndChildren, y) {
+                    var cellRow = rowAndChildren[0];
+                    var cells = rowAndChildren[1];
+                    config.fixCellRow(cellRow, y);
+                    cells.forEach(function(cell, x) { config.populateCell(cell, vals[y][x], x, y); });
 
-                        // reposition 'data' divs
-                        cache.bdtColhdrsData.css({left: colOffset});
-                        cache.bdtRowhdrsData.css({top: rowOffset});
-                        cache.bdtCntData.css({left: colOffset, top: rowOffset});
-                        // console.log({left: colOffset, top: rowOffset});
-                    });
-
-                    // finished - enable
-                    enable(true);
-                    $this.trigger('populated', [cols, rows, vals]);
+                    // reposition 'data' divs
+                    cache.colhdrsDataDiv.css({left: colOffset});
+                    cache.rowhdrsDataDiv.css({top: rowOffset});
+                    console.log('********* col: ' + colOffset + ', row: ' + rowOffset);
+                    cache.cntDataDiv.css({left: colOffset, top: rowOffset});
                 });
-            }
-        });
 
-        var colHdrs = $this.find('.bdt_colhdrs');
-        var rowHdrs = $this.find('.bdt_rowhdrs');
+                // finished - enable
+                enable(true);
+                $this.trigger('populated', [cols, rows, vals]);
+            });
+        }
 
         // private methods
         function enable(b) {
             console.log('** enable: ' + b);
         };
+
+        // initialize scrollpane
+        // initalize data
+        var orgX = colDim.scrollPos();
+        var orgY = rowDim.scrollPos();
+        stoppedScrolling(orgX, orgY);
+        cache.colHdrsDiv.scrollLeft(orgX);
+        cache.rowHdrsDiv.scrollTop(orgY);
+
+        cache.cntDiv.scrollpane({
+            arrowButtonSpeedX: config.col.w,
+            arrowButtonSpeedY: config.row.h,
+            x: colDim.scrollPos(),
+            y: rowDim.scrollPos(),
+            scrollCallback: function(x, y) {
+                // console.log('*** scroll x: ' + x + ', y: ' + y);
+                cache.colHdrsDiv.scrollLeft(x);
+                cache.rowHdrsDiv.scrollTop(y);
+                $this.trigger('scroll_cont', [x, y]);
+            },
+            scrollStopCallback: stoppedScrolling
+        });
 
         return $this;
 

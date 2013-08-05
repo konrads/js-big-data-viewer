@@ -12,3 +12,8 @@
 .bdt_cnt { background-color: yellow; }
 .bdt_cnt_canvas { background-color: Gold; }
 .bdt_cnt_data { background-color: GoldenRod; }
+
+/*
+bad idea, padding does not render properly:
+.bdt_colhdr, .bdt_rowhdr, .bdt_cnt_cell { padding: 5px 10px; }
+*/

@@ -19,12 +19,14 @@
         <script src="js/bigtable.js"></script>
         <script>
             $(document).ready(function(){
-                $('.scroll-pane').scrollpane();
-                var bigtable = $('.bigtable').bigtable()
-                    //.on('scroll_cont', function(event, x, y) { console.log('scroll cont: x: ' + x + ', y: ' + y); })
-                    .on('scroll_stop', function(event, x, y) { console.log('scroll stop: x: ' + x + ', y: ' + y); })
-                    .on('populated', function(event, cols, rows, vals) { console.log('populated: cols: ' + cols + ', rows: ' + rows + ', vals: ' + vals); });
-
+                $('.scroll-pane').scrollpane({x: 100, y: 50 });
+                var bigtable = $('.bigtable').bigtable({
+                    col: { currInd: 1, cnt: 10, visible: 5, buffer: 2, w: 100, h: 50 },
+                    row: { currInd: 2, cnt: 6,  visible: 4, buffer: 2, w: 150, h: 50 }
+                })
+                //.on('scroll_cont', function(event, x, y) { console.log('scroll cont: x: ' + x + ', y: ' + y); })
+                .on('scroll_stop', function(event, x, y) { console.log('scroll stop: x: ' + x + ', y: ' + y); })
+                .on('populated', function(event, cols, rows, vals) { console.log('populated: cols: ' + cols + ', rows: ' + rows + ', vals: ' + vals); });
             });
         </script>
     </head>
