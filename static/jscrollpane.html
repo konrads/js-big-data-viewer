@@ -15,6 +15,8 @@
         <script src="js/vendor/jquery.jscrollpane.ks.js"></script>
         <script>
             $(document).ready(function(){
+                //$('.scroll-pane2').scrollpane({x: 100, y: 50 });
+
                 var $this = $('.scroll-pane').jScrollPane({showArrows: true, arrowButtonSpeedX: 100, arrowButtonSpeedY: 10 });
                 var api = $this.data('jsp');
                 $this.scroll(function() {
@@ -32,6 +34,13 @@
         </script>
     </head>
     <body>
+        <!--
+        <div class="scroll-pane2" style="width:500px;height:200px;">
+            <img src="img/image.jpg" style="width:800px;height:600px;" />
+        </div>
+
+        <br/>
+        -->
 
         <div style="padding: 20px;">
             <h2>JQuery JScrollPane</h2>
