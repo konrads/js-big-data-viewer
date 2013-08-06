@@ -1,33 +1,37 @@
-/* .bdt_filler_and_colhdrs { background-color: red; }
-.bdt_filler { background-color: brown; } */
+.bigtable { font-family: 'Trebuchet MS', Verdana, Arial, Helvetica, sans-serif; }
 
-.bigtable { font-family: 'Lucida Grande', Verdana, sans-serif; font-size: 0.9em; }
+body { background: #F8F8F8; }
 
-.bdt_colhdrs, .bdt_colhdrs_canvas { background-color: black; color: #BCE27F; font-weight:bold; }
-.bdt_colhdrs { border-top-left-radius: 5px; border-top-right-radius: 5px; }
-/*
-.bdt_colhdrs_canvas { background-color: HotPink; }
-.bdt_colhdrs_data { background-color: Salmon; }
-*/
+.bdt_colhdr_wrapper, .bdt_rowhdr_wrapper {
+    font-size: 14px;
+    font-weight: bold;
+    color: #4f6b72;
+    letter-spacing: 2px;
+    text-align: left;
+}
 
-/* .bdt_rowhdrs_and_cnt { background-color: green; } */
-.bdt_rowhdrs, .bdt_rowhdrs_canvas { background-color: #CDE9A7; font-weight:bold;}
-.bdt_rowhdrs { border-top-left-radius: 5px; border-bottom-left-radius: 5px; }
-/*
-.bdt_rowhdrs_canvas { background-color: blue; }
-.bdt_rowhdrs_data { background-color: DarkBlue; }
-*/
+.bdt_colhdr, .bdt_rowhdr {
+    border-right: 1px solid #C1DAD7;
+    border-bottom: 1px solid #C1DAD7;
+    border-top: 1px solid #C1DAD7;
+    padding: 6px 6px 6px 12px;
+    background: #CAE8EA url(../img/bg_header.jpg) no-repeat;
+}
 
-.bdt_cnt { background-color: #F2F2F2; }
-.bdt_evenrow { background-color: white; }
-.bdt_oddrow { background-color: #F2F2F2; }
-/*
-.bdt_cnt_canvas { background-color: Gold; }
-.bdt_cnt_data { background-color: GoldenRod; }
-*/
+.bdt_cnt_cell { 
+    font-size: 14px;
+    padding: 6px 6px 6px 12px;
+}
 
-.bdt_colhdr, .bdt_rowhdr, .bdt_cnt_cell { padding: 7px 10px; }
+.bdt_evenrow {
+    background: #F5FAFA;
+    color: #797268;
+}
 
-.bdt_colhdr { text-align: center; }
-.bdt_rowhdr { text-align: left; }
-.bdt_cnt_cell { text-align: right; }
+.bdt_oddrow {
+    background: white;
+    color: #4f6b72
+}
+
+.bdt_cnt_canvas { background: #F5FAFA; }
+.bdt_rowhdrs_canvas, .bdt_colhdrs_canvas { background: #DBEBED; }
