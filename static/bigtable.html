@@ -19,10 +19,11 @@
         <script src="js/bigtable.js"></script>
         <script>
             $(document).ready(function(){
-                $('.scroll-pane').scrollpane({x: 100, y: 50 });
+                //$('.scroll-pane').scrollpane({x: 100, y: 50 });
                 var bigtable = $('.bigtable').bigtable({
-                    col: { currInd: 1, cnt: 10, visible: 5, buffer: 2, w: 100, h: 50 },
-                    row: { currInd: 2, cnt: 6,  visible: 4, buffer: 2, w: 150, h: 50 }
+                    refreshRate: 100,
+                    col: { currInd: 1, cnt: 1000, visible: 15, buffer: 10, w: 100, h: 35 },
+                    row: { currInd: 2, cnt: 600,  visible: 12, buffer: 10, w: 100, h: 35 }
                 })
                 //.on('scroll_cont', function(event, x, y) { console.log('scroll cont: x: ' + x + ', y: ' + y); })
                 .on('scroll_stop', function(event, x, y) { console.log('scroll stop: x: ' + x + ', y: ' + y); })
@@ -31,11 +32,13 @@
         </script>
     </head>
     <body>
+        <!--
         <div class="scroll-pane" style="width:500px;height:200px;">
             <img src="img/image.jpg" style="width:800px;height:600px;" />
         </div>
 
         <br/>
+        -->
 
         <div class="bigtable">
         </div>

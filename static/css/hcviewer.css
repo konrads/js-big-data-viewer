@@ -1,19 +1,33 @@
 /* .bdt_filler_and_colhdrs { background-color: red; }
 .bdt_filler { background-color: brown; } */
-.bdt_colhdrs { background-color: pink; }
+
+.bigtable { font-family: 'Lucida Grande', Verdana, sans-serif; font-size: 0.9em; }
+
+.bdt_colhdrs, .bdt_colhdrs_canvas { background-color: black; color: #BCE27F; font-weight:bold; }
+.bdt_colhdrs { border-top-left-radius: 5px; border-top-right-radius: 5px; }
+/*
 .bdt_colhdrs_canvas { background-color: HotPink; }
 .bdt_colhdrs_data { background-color: Salmon; }
+*/
 
 /* .bdt_rowhdrs_and_cnt { background-color: green; } */
-.bdt_rowhdrs { background-color: cyan; }
+.bdt_rowhdrs, .bdt_rowhdrs_canvas { background-color: #CDE9A7; font-weight:bold;}
+.bdt_rowhdrs { border-top-left-radius: 5px; border-bottom-left-radius: 5px; }
+/*
 .bdt_rowhdrs_canvas { background-color: blue; }
 .bdt_rowhdrs_data { background-color: DarkBlue; }
+*/
 
-.bdt_cnt { background-color: yellow; }
+.bdt_cnt { background-color: #F2F2F2; }
+.bdt_evenrow { background-color: white; }
+.bdt_oddrow { background-color: #F2F2F2; }
+/*
 .bdt_cnt_canvas { background-color: Gold; }
 .bdt_cnt_data { background-color: GoldenRod; }
-
-/*
-bad idea, padding does not render properly:
-.bdt_colhdr, .bdt_rowhdr, .bdt_cnt_cell { padding: 5px 10px; }
 */
+
+.bdt_colhdr, .bdt_rowhdr, .bdt_cnt_cell { padding: 7px 10px; }
+
+.bdt_colhdr { text-align: center; }
+.bdt_rowhdr { text-align: left; }
+.bdt_cnt_cell { text-align: right; }

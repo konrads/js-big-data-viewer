@@ -127,6 +127,8 @@ function DimHelper(
         var $this = this;
 
         var config = $.extend({
+            refreshRate: 100,
+            
             col: { currInd: 0, cnt: 10, visible: 5, buffer: 1, w: 100, h: 50 },
             row: { currInd: 0, cnt: 6,  visible: 4, buffer: 1, w: 150, h: 50 },
 
@@ -163,10 +165,10 @@ function DimHelper(
         var colDim = new DimHelper(config.col.currInd, config.col.cnt, config.col.visible, config.col.buffer, config.col.w);
         var rowDim = new DimHelper(config.row.currInd, config.row.cnt, config.row.visible, config.row.buffer, config.row.h);
 
-        var colHdrTemplate = '<div id="<%= id %>" class="bdt_colhdr" style="width: <%= col.w %>px; height: <%= col.h %>px; float: left;"></div>';
-        var rowHdrTemplate = '<div id="<%= id %>" class="bdt_rowhdr" style="width: <%= row.w %>px; height: <%= row.h %>px;"></div>';
-        var cellRowTemplate = '<div id="<%= id %>" class="bdt_cnt_row"><%= cells %></div>';
-        var cellTemplate = '<div id="<%= id %>" class="bdt_cnt_cell" style="width: <%= cell.w %>px; height: <%= cell.h %>px; float: left;"></div>';
+        var colHdrTemplate = '<div class="bdt_colhdr_wrapper" style="width: <%= col.w %>px; height: <%= col.h %>px; overflow: hidden; float: left;"><div id="<%= id %>" class="bdt_colhdr"></div></div>';
+        var rowHdrTemplate = '<div class="bdt_rowhdr_wrapper" style="width: <%= row.w %>px; height: <%= row.h %>px; overflow: hidden;"><div id="<%= id %>" class="bdt_rowhdr"></div></div>';
+        var cellRowTemplate = '<div id="<%= id %>" class="bdt_cnt_row" style="width: <%= row.w %>px; height: <%= row.h %>px;"><%= cells %></div>';
+        var cellTemplate = '<div class="bdt_cnt_cell_wrapper" style="width: <%= cell.w %>px; height: <%= cell.h %>px; overflow: hidden; float: left;"><div id="<%= id %>" class="bdt_cnt_cell"></div></div>';
 
         var allTemplate = 
             '<div class="bdt_filler_and_colhdrs" style="width: <%= colHdrDims.w+fillerDims.w %>px; height: <%= colHdrDims.h %>px;">' +
@@ -199,7 +201,7 @@ function DimHelper(
                                             return _.template(cellTemplate, { id: 'cell_r'+r+'_c'+c, cell: { w: config.col.w, h: config.row.h }})
                                         }
                                     ).join('');
-                                    return _.template(cellRowTemplate, { id: 'cellr'+r, cells: cells });
+                                    return _.template(cellRowTemplate, { id: 'cellr'+r, row: { w: colDim.dataSize(), h: config.row.h }, cells: cells });
                                 }
                             ).join('') +
                         '</div>' +
@@ -215,9 +217,9 @@ function DimHelper(
 
         // cache for elements used later on
         var cache = {
-            colHdrs: $.makeArray($this.find('.bdt_colhdrs_data > .bdt_colhdr')),  // list of header divs
-            rowHdrs: $.makeArray($this.find('.bdt_rowhdrs_data > .bdt_rowhdr')),  // list of header divs
-            cntRows: _.map($this.find('.bdt_cnt_data > .bdt_cnt_row'), function(r) { return [r, $.makeArray($(r).children())]; }),      // list of content [row_div, [row_cell]]
+            colHdrs: $.makeArray($this.find('.bdt_colhdrs_data .bdt_colhdr')),  // list of header divs
+            rowHdrs: $.makeArray($this.find('.bdt_rowhdrs_data .bdt_rowhdr')),  // list of header divs
+            cntRows: _.map($this.find('.bdt_cnt_data .bdt_cnt_row'), function(r) { return [r, $.makeArray($(r).find('.bdt_cnt_cell'))]; }),      // list of content [row_div, [row_cell]]
 
             colhdrsDataDiv: $this.find('.bdt_colhdrs_data'),
             rowhdrsDataDiv: $this.find('.bdt_rowhdrs_data'),
@@ -245,16 +247,25 @@ function DimHelper(
                 // populate data
                 cache.colHdrs.forEach(function(colHdr, i) { config.populateColHdr(colHdr, cols[i], i); });
                 cache.rowHdrs.forEach(function(rowHdr, i) { config.populateRowHdr(rowHdr, rows[i], i); });
+                var rowCnt = rowMin;
                 cache.cntRows.forEach(function(rowAndChildren, y) {
                     var cellRow = rowAndChildren[0];
                     var cells = rowAndChildren[1];
+
+                    // add oddrow/everow class
+                    var oddEven = (rowMin++)%2 ? ['bdt_evenrow', 'bdt_oddrow'] : ['bdt_oddrow', 'bdt_evenrow'];
+                    cellRow.classList.remove(oddEven[0]);
+                    cellRow.classList.add(oddEven[1]);
+
                     config.fixCellRow(cellRow, y);
-                    cells.forEach(function(cell, x) { config.populateCell(cell, vals[y][x], x, y); });
+                    cells.forEach(function(cell, x) {
+                        config.populateCell(cell, vals[y][x], x, y);
+                    });
 
                     // reposition 'data' divs
                     cache.colhdrsDataDiv.css({left: colOffset});
                     cache.rowhdrsDataDiv.css({top: rowOffset});
-                    console.log('********* col: ' + colOffset + ', row: ' + rowOffset);
+                    // console.log('********* col: ' + colOffset + ', row: ' + rowOffset);
                     cache.cntDataDiv.css({left: colOffset, top: rowOffset});
                 });
 
@@ -278,6 +289,7 @@ function DimHelper(
         cache.rowHdrsDiv.scrollTop(orgY);
 
         cache.cntDiv.scrollpane({
+            refreshRate: config.refreshRate,
             arrowButtonSpeedX: config.col.w,
             arrowButtonSpeedY: config.row.h,
             x: colDim.scrollPos(),

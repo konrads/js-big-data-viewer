@@ -4,6 +4,7 @@
             showArrows: true,
             arrowButtonSpeedX: 10,
             arrowButtonSpeedY: 100,
+            refreshRate: 100,
             x: 0,
             y: 0,
             scrollCallback: function(x, y) { console.log('scroll x: ' + x + ', y: ' + y); },
@@ -18,7 +19,7 @@
         $this.scroll(function() {
             if (config.scrollCallback)
                 config.scrollCallback(api.getContentPositionX(), api.getContentPositionY());
-            $.doTimeout( 'scroll', 100, function() {
+            $.doTimeout( 'scroll', config.refreshRate, function() {
                 if (config.scrollStopCallback)
                     config.scrollStopCallback(api.getContentPositionX(), api.getContentPositionY());
             });
