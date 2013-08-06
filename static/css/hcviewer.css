@@ -37,3 +37,7 @@ body { background: #F8F8F8; }
 
 .bdt_cnt_canvas { background: #F5FAFA; }
 .bdt_rowhdrs_canvas, .bdt_colhdrs_canvas { background: #DBEBED; }
+
+/* optional corner rounding... */
+.bdt_colhdrs { border-top-left-radius: 5px; border-top-right-radius: 5px; }
+.bdt_rowhdrs { border-top-left-radius: 5px; border-bottom-left-radius: 5px; }
