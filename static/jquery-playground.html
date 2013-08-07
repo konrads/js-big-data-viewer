@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>jQuery playground</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="js/vendor/underscore.js"></script>
+        <script src="js/vendor/jquery.js"></script>
+        <script>
+            $(document).ready(function(){
+                var withPadding1 = $('#with_padding1');
+                var withPadding2 = $('#with_padding2');
+                var withoutPadding = $('#without_padding');
+                console.log('with padding1: h: ' + withPadding1.height() + ', w: ' + withPadding1.width());
+                console.log('with padding2: h: ' + withPadding2.height() + ', w: ' + withPadding2.width());
+                console.log('without padding: h: ' + withoutPadding.height() + ', w: ' + withoutPadding.width());
+
+                var url =  "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20%28%22AAPL,AMZN%22%29&env=store://datatables.org/alltableswithkeys&format=json&";
+                $.getJSON(url + "callback=?", null, function(reply) {
+                    console.log('reply: ', reply);
+                });
+
+            });
+        </script>
+    </head>
+    <body>
+        <div style="overflow: hidden; width: 300px; height: 50px; background-color: green; vertical-align: middle; display: table-cell;">
+            <div id="with_padding1" style="overflow: hidden; padding: 10px; text-align: center;">
+                with some lovely padding1,
+                with some lovely padding1,
+                with some lovely padding1,
+                with some lovely padding1,
+                with some lovely padding1,
+                with some lovely padding1,
+            </div>
+        </div>
+
+        <div style="overflow: hidden; width: 300px; height: 100px;"></div>
+        
+        <div style="overflow: hidden; width: 300px; height: 50px; background-color: red;">
+            <!-- div id="with_padding" style="padding: 20px; width: 200px; height: 50px; background-color: red;" -->
+            <div id="with_padding2" style="padding: 10px; text-align: right;">
+                with some lovely padding2,
+                with some lovely padding2,
+                with some lovely padding2,
+                with some lovely padding2,
+                with some lovely padding2,
+                with some lovely padding2,
+            </div>
+        </div>
+        
+        <div style="overflow: hidden; width: 300px; height: 100px;"></div>
+        
+        <div style="overflow: hidden; width: 300px; height: 50px; background-color: blue;">
+            <div id="without_padding" style="width: 200px; height: 50px;">
+            without any padding at all,
+            without any padding at all,
+            without any padding at all,
+            without any padding at all,
+            without any padding at all,
+            without any padding at all,
+            </div>
+        </div>
+
+
+        <div style="overflow: hidden; width: 300px; height: 100px;"></div>
+        
+        <div style="overflow: hidden; width: 638px; height: 26px; 
+font: bold 11px 'Trebuchet MS', Verdana, Arial, Helvetica, sans-serif;
+color: #4f6b72;
+letter-spacing: 2px;
+text-align: left;">
+            <div id="new_style1" style="float: left; width: 300px; height: 26px;
+border-right: 1px solid #C1DAD7;
+border-bottom: 1px solid #C1DAD7;
+border-top: 1px solid #C1DAD7;
+padding: 6px 6px 6px 12px;
+background: #CAE8EA url(img/bg_header.jpg) no-repeat;">
+http://www.duoh.com/
+
+            </div>
+            <div id="new_style1" style="float: left; width: 300px; height: 26px;
+border-right: 1px solid #C1DAD7;
+border-bottom: 1px solid #C1DAD7;
+border-top: 1px solid #C1DAD7;
+padding: 6px 6px 6px 12px;
+background: #CAE8EA url(img/bg_header.jpg) no-repeat;">
+/csstutorials/csstables/
+
+            </div>
+        </div>
+
+    </body>
+</html>
