@@ -16,12 +16,25 @@
 
         if (config.x || config.y) api.scrollTo(config.x, config.y);
 
+        var prevScroll = { x: api.getContentPositionX(), y: api.getContentPositionY() };
+        var prevScrollStop = $.extend({}, prevScroll);
+
         $this.scroll(function() {
-            if (config.scrollCallback)
-                config.scrollCallback(api.getContentPositionX(), api.getContentPositionY());
+            if (config.scrollCallback) {
+                var now = { x: api.getContentPositionX(), y: api.getContentPositionY() };
+                if (prevScroll.x != now.x || prevScroll.y != now.y) {
+                    config.scrollCallback(now.x, now.y);
+                    prevScroll = now;
+                }
+            }
             $.doTimeout( 'scroll', config.refreshRate, function() {
-                if (config.scrollStopCallback)
-                    config.scrollStopCallback(api.getContentPositionX(), api.getContentPositionY());
+                if (config.scrollStopCallback) {
+                    var now = { x: api.getContentPositionX(), y: api.getContentPositionY() };
+                    if (prevScrollStop.x != now.x || prevScrollStop.y != now.y) {
+                        config.scrollStopCallback(now.x, now.y);
+                        prevScrollStop = now;
+                    }
+                }
             });
         });
 
