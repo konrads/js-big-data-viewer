@@ -139,8 +139,8 @@ function DimHelper(
         var config = $.extend({
             refreshRate: 100,
 
-            col: { currInd: 0, cnt: 10, visible: 5, buffer: 1, w: 100, h: 50 },
-            row: { currInd: 0, cnt: 6,  visible: 4, buffer: 1, w: 150, h: 50 },
+            col: { currInd: 0, cnt: 10, visible: 5, buffer: 1, w: 100, h: 30 },
+            row: { currInd: 0, cnt: 6,  visible: 4, buffer: 1, w: 150, h: 30 },
 
             // dummy content generator
             contentFetch: function(colMin, colMax, rowMin, rowMax, callback) {

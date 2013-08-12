@@ -1,0 +1,5 @@
+# required: brew install libevent,
+# run via: CFLAGS="-I /opt/local/include -L /opt/local/lib" pip install -r requirements.txt
+Flask==0.10.1
+# gevent==0.13.8
+# gevent-websocket==0.3.6

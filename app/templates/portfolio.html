@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Portfolio viewer: {{symbols|safe}}</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <link href="static/css/vendor/jquery.jscrollpane.css" rel="stylesheet" />
+        <link href="static/css/vendor/jquery.jscrollpane.lozenge.ks.css" rel="stylesheet" />
+
+        <link href="static/css/hcviewer.css" rel="stylesheet" />
+
+        <script src="static/js/vendor/underscore.js"></script>
+        <script src="static/js/vendor/jquery.js"></script>
+        <script src="static/js/vendor/jquery.ba-dotimeout.js"></script>
+        <script src="static/js/vendor/jquery.mousewheel.js"></script>
+        <script src="static/js/vendor/jquery.jscrollpane.ks.js"></script>
+
+        <script src="static/js/scrollpane.js"></script>
+        <script src="static/js/bigtable.js"></script>
+        <script>
+            function dateToYMD(inMs) {
+                var date = new Date(inMs);
+                var d = date.getDate();
+                var m = date.getMonth() + 1;
+                var y = date.getFullYear();
+                return '' + y + '-' + (m<=9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
+            }
+            $(document).ready(function() {
+                var firstDate = Date.parse('{{start_date}}');
+                var dayDelta = 24*60*60*1000;
+                var bigtable = $('.bigtable').bigtable({
+                    refreshRate: 200,
+                    col: { currInd: 5, cnt: {{cols.cnt}}, visible: {{cols.visible}}, buffer: 15, w: 120, h: 30 },
+                    row: { currInd: 3, cnt: {{rows.cnt}}, visible: {{rows.visible}}, buffer: 10,  w: 100, h: 30 },
+                    contentFetch: function(colMin, colMax, rowMin, rowMax, callback) {
+                        var startDate = dateToYMD(firstDate + colMin*dayDelta);
+                        var endDate = dateToYMD(firstDate + colMax*dayDelta);
+                        var symbols = {{symbols|safe}}.slice(rowMin, rowMax+1);
+                        console.log('startDate', startDate);
+                        console.log('endDate', endDate);
+                        console.log(symbols);
+                        $.ajax({
+                            url: 'api/symbols/' + symbols.join(',') + '/start_date/' + startDate + '/end_date/' + endDate,
+                            dataType: 'json'
+                            })
+                            .done(function(resp) {
+                                callback(resp.cols, resp.rows, resp.vals);
+                            })
+                    },
+                })
+                //.on('scroll_cont', function(event, x, y) { console.log('scroll cont: x: ' + x + ', y: ' + y); })
+                .on('scroll_stop', function(event, x, y) { console.log('scroll stop: x: ' + x + ', y: ' + y); })
+                //.on('populated', function(event, cols, rows, vals) { console.log('populated: cols: ' + cols + ', rows: ' + rows + ', vals: ' + vals); });
+            });
+
+        </script>
+    </head>
+    <body>
+        <h2>Portfolio viewer: {{symbols|safe}}</h2>
+        <div class="bigtable">
+        </div>
+    </body>
+</html>
