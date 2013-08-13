@@ -125,28 +125,20 @@ function DimHelper(
         return cnt * size;
     };
 
-    // initialize
-    var dataOffset;
-    this.currInd(currInd);
-} 
-
-
-function MovementTracker(config) {
-    var prevCol, prevRow, init = false;
-
-    this.shouldFetch = function(col, row) {
-        if (! init ||
-            (config.col.buffer+config.col.visible < config.col.cnt && Math.abs(col - prevCol)*2 > config.col.buffer) ||
-            (config.row.buffer+config.row.visible < config.row.cnt && Math.abs(row - prevRow)*2 > config.row.buffer)) {
-            init = true;
-            prevCol = col;
-            prevRow = row;
+    this.shouldFetch = function() {
+        if (prevStopInd === undefined ||
+            (buffer+visible < cnt && Math.abs(prevStopInd - currInd) > buffer/2)) {
+            prevStopInd = currInd;
             return true;
         } else {
             return false;
         }
     };
-};
+
+    // initialize
+    var dataOffset, prevStopInd;
+    this.currInd(currInd);
+} 
 
 
 (function($) {
@@ -260,8 +252,6 @@ function MovementTracker(config) {
             cntDiv: $this.find('.bdt_cnt')
         };
 
-
-        var tracker = new MovementTracker(config);
         function stoppedScrolling(x, y) {
             enable(false);
             $this.trigger('scroll_stop', [x, y]);
@@ -273,7 +263,8 @@ function MovementTracker(config) {
             var rowOffset = rowDim.dataOffset();
             // console.log('stopped scrolling colPage.currInd: '+colPage.currInd+', rowPage.currInd:'+rowPage.currInd);
 
-            if (tracker.shouldFetch(colPage.currInd, rowPage.currInd)) {
+            var shouldFetchCol = colDim.shouldFetch(), shouldFetchRow = rowDim.shouldFetch();  // forcing execution on both dims - required
+            if (shouldFetchCol || shouldFetchRow) {
                 console.log('Fetching new content!');
                 config.contentFetch(colPage.actualStart, colPage.actualEnd, rowPage.actualStart, rowPage.actualEnd, function(cols, rows, vals) {
                     // assert we got back required sizes:
