@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Angular Portfolio viewer</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <link href="static/css/vendor/jquery.jscrollpane.css" rel="stylesheet" />
+        <link href="static/css/vendor/jquery.jscrollpane.lozenge.ks.css" rel="stylesheet" />
+
+        <link href="static/css/hcviewer.css" rel="stylesheet" />
+
+        <script src="static/js/vendor/underscore.js"></script>
+        <script src="static/js/vendor/jquery.js"></script>
+        <script src="static/js/vendor/jquery.ba-dotimeout.js"></script>
+        <script src="static/js/vendor/jquery.mousewheel.js"></script>
+        <script src="static/js/vendor/jquery.jscrollpane.ks.js"></script>
+        <script src="static/js/vendor/angular.js"></script>
+
+        <script src="static/js/scrollpane.js"></script>
+        <script src="static/js/bigtable.js"></script>
+        <script src="static/js/portfolio-app.js"></script>
+    </head>
+
+    <body ng-app="portfolioApp">
+        <script>
+            symbols = {{symbols|safe}};
+            firstDate = Date.parse('{{start_date}}');
+        </script>
+        <div ng-controller="PortfolioCtrl">
+            <h2>Angular Portfolio viewer: [[symbols]]</h2>
+            <button ng-click='toggleBtn()'>[[btnLabel]]</button>
+            <div ng-show="tableShow">
+            <bigtable content-fetch="symbolFetch"
+                      col-cnt="{{cols.cnt}}" col-visible="{{cols.visible}}" col-buffer="15" col-w="120" col-h="30"
+                      row-cnt="{{rows.cnt}}" row-visible="{{rows.visible}}" row-buffer="15" row-w="120" row-h="30"></bigtable>
+            </div>
+        </div>
+    </body>
+</html>

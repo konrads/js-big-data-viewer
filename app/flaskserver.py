@@ -12,6 +12,23 @@ DATE_PATTERN = '%Y-%m-%d'
 ######### Abourget moo - for s3 directives
 
 
+@app.route('/portfolio-angular')
+def portfolio_angular():
+    cols = {'cnt': len(db.dates), 'visible': 10, 'buffer': 50}
+    rows = {'cnt': len(db.symbols), 'visible': 5, 'buffer': 5}
+    initial_data = db.data(
+        db.symbols,
+        db.start_date,
+        db.start_date + timedelta(days=cols['visible']+cols['buffer']))
+    return render_template(
+        'portfolio-angular.html',
+        symbols=db.symbols,
+        start_date=db.start_date,
+        cols=cols,
+        rows=rows,
+        initial_data=initial_data)
+
+
 @app.route('/portfolio')
 def portfolio():
     cols = {'cnt': len(db.dates), 'visible': 10, 'buffer': 50}
