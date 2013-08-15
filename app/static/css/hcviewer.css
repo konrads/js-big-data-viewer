@@ -10,19 +10,25 @@ body { background: #F8F8F8; }
     text-align: left;
 }
 
-.bdt_colhdr, .bdt_rowhdr {
+.bdt_colhdr {
     border-right: 1px solid #C1DAD7;
+}
+
+.bdt_rowhdr {
     border-bottom: 1px solid #C1DAD7;
-    border-top: 1px solid #C1DAD7;
+}
+
+.bdt_colhdr, .bdt_rowhdr {
     padding: 6px 6px 6px 12px;
     background: #CAE8EA url(../img/bg_header.jpg) no-repeat;
 }
 
 .bdt_cnt_cell {
-    border-right: 1px solid #C1DAD7;
-    border-bottom: 1px solid #C1DAD7;
+    border-left: 1px solid #C1DAD7;
+    border-top:  1px solid #C1DAD7;  /* should be border-bottom, but that does not show in Firefox... */
     font-size: 14px;
     padding: 6px 6px 6px 12px;
+    -moz-box-sizing: border-box;
 }
 
 .bdt_evenrow {
