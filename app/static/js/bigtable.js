@@ -66,29 +66,21 @@ function assertEquals(v1, v2, msg) {
     }
 }
 
-function DimHelper(
-        name,             // for debugging
-        currInd,          // starting index of visible area
-        cnt,              // number of all values
-        visible,          // number of values displayable at any moment
-        cnt,              // number of all values in the dim
-        buffer,           // buffer used for prefetching data.  Fetch set = buffer + visible area + buffer
-        size) {           // size in pixels
-    
+function DimHelper(isCol, dim) {
     this.inds = function() {
         return {
-            min: Math.max(0, currInd-buffer),
-            max: Math.min(cnt, currInd+visible+buffer)
+            min: Math.max(0, dim.currInd-dim.buffer),
+            max: Math.min(cnt, dim.currInd+dim.visible+dim.buffer)
         };
     };
     
     // getter/setter
     this.currInd = function(val) {
-        if (val === undefined) return currInd;
+        if (val === undefined) return dim.currInd;
         else {
-            currInd = val;
+            dim.currInd = val;
             // used for initializing
-            dataOffset = (currInd-buffer)*size;
+            dataOffset = (dim.currInd-dim.buffer)*size;
         }
     };
 
@@ -97,7 +89,7 @@ function DimHelper(
     };
 
     this.scrollPos = function() {
-        return currInd*size;
+        return dim.currInd*size;
     };
 
     this.dataOffset = function() {
@@ -105,30 +97,29 @@ function DimHelper(
     };
 
     this.page = function() {
-        var actualStart = Math.max(0, currInd-buffer);
-        var dataStart   = Math.max(0, buffer-currInd);
-        var actualEnd = Math.min(cnt-1, currInd+visible+buffer-1);
+        var actualStart = Math.max(0, dim.currInd-dim.buffer);
+        var dataStart   = Math.max(0, dim.buffer-dim.currInd);
+        var actualEnd = Math.min(dim.cnt-1, dim.currInd+dim.visible+dim.buffer-1);
         var dataEnd = dataStart + (actualEnd-actualStart);
-
-        return { actualStart: actualStart, dataStart: dataStart, actualEnd: actualEnd, dataEnd: dataEnd, currInd: currInd }
+        return { actualStart: actualStart, dataStart: dataStart, actualEnd: actualEnd, dataEnd: dataEnd, currInd: dim.currInd }
     };
 
     this.dataIndsCnt = function() {
-        return buffer+visible+buffer;
+        return dim.buffer+dim.visible+dim.buffer;
     };
 
     this.dataSize = function() {
-        return (buffer+visible+buffer) * size;
+        return (dim.buffer+dim.visible+dim.buffer) * size;
     };
 
     this.canvasSize = function() {
-        return cnt * size;
+        return dim.cnt * size;
     };
 
     this.shouldFetch = function() {
         if (prevStopInd === undefined ||
-            (buffer+visible < cnt && Math.abs(prevStopInd - currInd) > buffer/2)) {
-            prevStopInd = currInd;
+            (dim.buffer+dim.visible < dim.cnt && Math.abs(prevStopInd-dim.currInd) > dim.scrollTrigger)) {
+            prevStopInd = dim.currInd;
             return true;
         } else {
             return false;
@@ -137,7 +128,9 @@ function DimHelper(
 
     // initialize
     var dataOffset, prevStopInd;
-    this.currInd(currInd);
+    var size = isCol ? dim.w : dim.h;
+    var name = isCol ? 'col' : 'row';  // for debugging
+    this.currInd(dim.currInd);
 } 
 
 
@@ -145,11 +138,9 @@ function DimHelper(
     $.fn.bigtable = function(config) {
         var $this = this;
 
+        // initialize main object
         var config = $.extend({
             refreshRate: 100,
-
-            col: { currInd: 0, cnt: 10, visible: 5, buffer: 1, w: 100, h: 30 },
-            row: { currInd: 0, cnt: 6,  visible: 4, buffer: 1, w: 150, h: 30 },
 
             // dummy content generator
             contentFetch: function(colMin, colMax, rowMin, rowMax, callback) {
@@ -170,14 +161,17 @@ function DimHelper(
             fixCellRow:     function(cellRow, ind) {},
             populateCell:   function(cell, val, xInd, yInd) { cell.innerHTML = val; }
         }, config);
+        // initialize individual dims
+        config.col = $.extend({ currInd: 0, cnt: 10, visible: 5, buffer: 4, scrollTrigger: 2, w: 100, h: 30 }, config.col);
+        config.row = $.extend({ currInd: 0, cnt: 6,  visible: 4, buffer: 4, scrollTrigger: 2, w: 150, h: 30 }, config.row);
 
         // populate Layer 1 elements
         var scrollbarDims = {
             w: config.row.visible < config.row.cnt ? 16 : 0,
             h: config.col.visible < config.col.cnt ? 16 : 0
         };
-        var colDim = new DimHelper('col', config.col.currInd, config.col.cnt, config.col.visible, config.col.cnt, config.col.buffer, config.col.w);
-        var rowDim = new DimHelper('row', config.row.currInd, config.row.cnt, config.row.visible, config.row.cnt, config.row.buffer, config.row.h);
+        var colDim = new DimHelper(true,  config.col);
+        var rowDim = new DimHelper(false, config.row);
 
         var cntDims     = { w: config.col.visible*config.col.w + scrollbarDims.w, h: config.row.visible*config.row.h + scrollbarDims.h };
         var fillerDims  = { w: config.row.w, h: config.col.h };
