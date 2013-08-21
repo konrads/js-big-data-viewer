@@ -28,24 +28,29 @@
             $(document).ready(function() {
                 var firstDate = Date.parse('{{start_date}}');
                 var dayDelta = 24*60*60*1000;
+                var allSymbols = {{symbols|safe}};
                 var bigtable = $('.bigtable').bigtable({
                     refreshRate: 200,
                     col: { currInd: 5, cnt: {{cols.cnt}}, visible: {{cols.visible}}, buffer: 15, w: 120, h: 30 },
                     row: { currInd: 3, cnt: {{rows.cnt}}, visible: {{rows.visible}}, buffer: 10,  w: 100, h: 30 },
+                    colFetch: function(min, max) {
+                        return _.map(_.range(min, max+1), function(i) { return dateToYMD(firstDate + i*dayDelta); });
+                    },
+                    rowFetch: function(min, max) {
+                        return allSymbols.slice(min, max+1);
+                    },
                     contentFetch: function(colMin, colMax, rowMin, rowMax, callback) {
                         var startDate = dateToYMD(firstDate + colMin*dayDelta);
                         var endDate = dateToYMD(firstDate + colMax*dayDelta);
-                        var symbols = {{symbols|safe}}.slice(rowMin, rowMax+1);
+                        var symbols = allSymbols.slice(rowMin, rowMax+1);
                         console.log('startDate', startDate);
                         console.log('endDate', endDate);
                         console.log(symbols);
                         $.ajax({
                             url: 'api/symbols/' + symbols.join(',') + '/start_date/' + startDate + '/end_date/' + endDate,
-                            dataType: 'json'
-                            })
-                            .done(function(resp) {
-                                callback(resp.cols, resp.rows, resp.vals);
-                            })
+                            dataType: 'json',
+                            success: callback
+                        })
                     },
                 })
                 //.on('scroll_cont', function(event, x, y) { console.log('scroll cont: x: ' + x + ', y: ' + y); })

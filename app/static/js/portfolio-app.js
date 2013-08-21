@@ -11,6 +11,8 @@ angular.module('portfolioApp', [])
             replace: true,
             template: '<div class="bigtable"></div>',
             scope: {
+                colFetch: '=',
+                rowFetch: '=',
                 contentFetch: '=',
                 colCnt: '=',
                 colVisible: '=',
@@ -31,6 +33,8 @@ angular.module('portfolioApp', [])
                     refreshRate: 200,
                     col: { currInd: 5, cnt: scope.colCnt, visible: scope.colVisible, buffer: scope.colBuffer, w: scope.colW, h: scope.colH },
                     row: { currInd: 2, cnt: scope.rowCnt, visible: scope.rowVisible, buffer: scope.rowBuffer, w: scope.rowW, h: scope.rowH },
+                    colFetch: scope.colFetch,
+                    rowFetch: scope.rowFetch,
                     contentFetch: scope.contentFetch})
                 .on('scroll_stop', function(event, x, y) { console.log('scroll stop: x: ' + x + ', y: ' + y); })
             }
@@ -46,17 +50,21 @@ angular.module('portfolioApp', [])
             return '' + y + '-' + (m<=9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
         }
         var dayDelta = 24*60*60*1000;
-        $scope.symbolFetch = function(colMin, colMax, rowMin, rowMax, callback) {
+        $scope.dateFetch = function(min, max) {
+            return _.map(_.range(min, max+1), function(i) { return dateToYMD(firstDate + i*dayDelta); });
+        };
+        $scope.symbolFetch = function(min, max) {
+            return symbols.slice(min, max+1);
+        };
+        $scope.valueFetch = function(colMin, colMax, rowMin, rowMax, callback) {
             var startDate = dateToYMD(firstDate + colMin*dayDelta);
             var endDate = dateToYMD(firstDate + colMax*dayDelta);
             var symbols2 = symbols.slice(rowMin, rowMax+1);
             // FIXME: replace with angularjs ajax call
             $.ajax({
                 url: 'api/symbols/' + symbols2.join(',') + '/start_date/' + startDate + '/end_date/' + endDate,
-                dataType: 'json'
-            })
-            .done(function(resp) {
-                callback(resp.cols, resp.rows, resp.vals);
+                dataType: 'json',
+                success: callback
             })
         };
 

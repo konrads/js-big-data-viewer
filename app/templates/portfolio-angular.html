@@ -30,7 +30,9 @@
             <h2>Angular Portfolio viewer: [[symbols]]</h2>
             <button ng-click='toggleBtn()'>[[btnLabel]]</button>
             <div ng-show="tableShow">
-            <bigtable content-fetch="symbolFetch"
+            <bigtable col-fetch="dateFetch"
+                      row-fetch="symbolFetch"
+                      content-fetch="valueFetch"
                       col-cnt="{{cols.cnt}}" col-visible="{{cols.visible}}" col-buffer="15" col-w="120" col-h="30"
                       row-cnt="{{rows.cnt}}" row-visible="{{rows.visible}}" row-buffer="15" row-w="120" row-h="30"></bigtable>
             </div>

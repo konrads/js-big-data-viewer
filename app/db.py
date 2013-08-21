@@ -95,8 +95,4 @@ class DB(object):
         start_ind = (start_date - self.start_date).days
         end_ind = (end_date - self.start_date).days
         symbols = [symbol for symbol in symbols if symbol in self._symbol_data]
-        return {
-            'rows': symbols,
-            'cols': [d.strftime(DATE_PATTERN) for d in self._dates[start_ind:end_ind+1]],
-            'vals': [self._symbol_data[symbol][start_ind:end_ind+1] for symbol in symbols]
-        }
+        return [self._symbol_data[symbol][start_ind:end_ind+1] for symbol in symbols]
