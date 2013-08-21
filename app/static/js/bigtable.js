@@ -117,9 +117,9 @@ function DimHelper(isCol, dim) {
     };
 
     this.shouldFetch = function() {
-        if (prevStopInd === undefined ||
-            (dim.buffer+dim.visible < dim.cnt && Math.abs(prevStopInd-dim.currInd) > dim.scrollTrigger)) {
-            prevStopInd = dim.currInd;
+        if (prevInd === undefined ||
+            (dim.buffer+dim.visible < dim.cnt && Math.abs(prevInd-dim.currInd) > dim.scrollTrigger)) {
+            prevInd = dim.currInd;
             return true;
         } else {
             return false;
@@ -127,7 +127,7 @@ function DimHelper(isCol, dim) {
     };
 
     // initialize
-    var dataOffset, prevStopInd;
+    var dataOffset, prevInd;
     var size = isCol ? dim.w : dim.h;
     var name = isCol ? 'col' : 'row';  // for debugging
     this.currInd(dim.currInd);
@@ -143,16 +143,24 @@ function DimHelper(isCol, dim) {
             refreshRate: 100,
 
             // dummy content generator
+            colFetch: function(min, max) {
+                return _.map(_.range(min, max+1), function(i) { return 'c' + i; });
+            },
+            
+            rowFetch: function(min, max) {
+                return _.map(_.range(min, max+1), function(i) { return 'r' + i; });
+            },
+            
             contentFetch: function(colMin, colMax, rowMin, rowMax, callback) {
-                var cols = _.map(_.range(colMin, colMax+1), function(c) { return 'c' + c; });
-                var rows = _.map(_.range(rowMin, rowMax+1), function(r) { return 'r' + r; });
-                var vals =  _.map(rows, function(r) {
+                var cols = _.map(_.range(colMin, colMax+1), function(i) { return 'c' + i; });
+                var rows = _.map(_.range(rowMin, rowMax+1), function(i) { return 'r' + i; });
+                var vals = _.map(rows, function(r) {
                     return _.map(cols, function(c) {
                         return r + c;
                     });
                 });
 
-                callback(cols, rows, vals);
+                callback(vals);
             },
 
             // means of controlling header/cell look and feel
@@ -172,6 +180,8 @@ function DimHelper(isCol, dim) {
         };
         var colDim = new DimHelper(true,  config.col);
         var rowDim = new DimHelper(false, config.row);
+        var colHdrDim = new DimHelper(true,  config.col);
+        var rowHdrDim = new DimHelper(false, config.row);
 
         var cntDims     = { w: config.col.visible*config.col.w + scrollbarDims.w, h: config.row.visible*config.row.h + scrollbarDims.h };
         var fillerDims  = { w: config.row.w, h: config.col.h };
@@ -246,6 +256,33 @@ function DimHelper(isCol, dim) {
             cntDiv: $this.find('.bdt_cnt')
         };
 
+        function scrolled(x, y) {
+            colHdrDim.scrollTo(x);
+            rowHdrDim.scrollTo(y);
+
+            if (colHdrDim.shouldFetch()) {
+                var colPage = colHdrDim.page();
+                var colOffset = colHdrDim.dataOffset();
+                var cols = config.colFetch(colPage.actualStart, colPage.actualEnd);
+                assertEquals(cols.length, colPage.actualEnd-colPage.actualStart+1, "Col cnt doesn't match");
+                cache.colHdrs.slice(colPage.dataStart, colPage.dataEnd+1).forEach(function(colHdr, i) { config.populateColHdr(colHdr, cols[i], i); });
+                cache.colhdrsDataDiv.css({left: colOffset});
+            }
+            cache.colHdrsDiv.scrollLeft(x);
+
+            if (rowHdrDim.shouldFetch()) {
+                var rowPage = rowHdrDim.page();
+                var rowOffset = rowHdrDim.dataOffset();
+                var rows = config.rowFetch(rowPage.actualStart, rowPage.actualEnd);
+                assertEquals(rows.length, rowPage.actualEnd-rowPage.actualStart+1, "Row cnt doesn't match");
+                cache.rowHdrs.slice(rowPage.dataStart, rowPage.dataEnd+1).forEach(function(rowHdr, i) { config.populateRowHdr(rowHdr, rows[i], i); });
+                cache.rowhdrsDataDiv.css({top: rowOffset});
+            }
+            cache.rowHdrsDiv.scrollTop(y);
+
+            $this.trigger('scroll_cont', [x, y]);
+        }
+
         function stoppedScrolling(x, y) {
             enable(false);
             $this.trigger('scroll_stop', [x, y]);
@@ -258,17 +295,14 @@ function DimHelper(isCol, dim) {
             // console.log('stopped scrolling colPage.currInd: '+colPage.currInd+', rowPage.currInd:'+rowPage.currInd);
 
             var shouldFetchCol = colDim.shouldFetch(), shouldFetchRow = rowDim.shouldFetch();  // forcing execution on both dims - required
+
             if (shouldFetchCol || shouldFetchRow) {
                 console.log('Fetching new content!');
-                config.contentFetch(colPage.actualStart, colPage.actualEnd, rowPage.actualStart, rowPage.actualEnd, function(cols, rows, vals) {
+                config.contentFetch(colPage.actualStart, colPage.actualEnd, rowPage.actualStart, rowPage.actualEnd, function(vals) {
                     // assert we got back required sizes:
-                    assertEquals(cols.length, colPage.actualEnd-colPage.actualStart+1, "Col cnt doesn't match");
-                    assertEquals(rows.length, rowPage.actualEnd-rowPage.actualStart+1, "Row cnt doesn't match");
                     assertEquals(vals.length, rowPage.actualEnd-rowPage.actualStart+1, "Val row cnt doesn't match");
 
                     // populate row/col header data
-                    cache.colHdrs.slice(colPage.dataStart, colPage.dataEnd+1).forEach(function(colHdr, i) { config.populateColHdr(colHdr, cols[i], i); });
-                    cache.rowHdrs.slice(rowPage.dataStart, rowPage.dataEnd+1).forEach(function(rowHdr, i) { config.populateRowHdr(rowHdr, rows[i], i); });
                     var rowI = rowPage.actualStart;
 
                     cache.cntRows.slice(rowPage.dataStart, rowPage.dataEnd+1).forEach(function(rowAndCell, y) {
@@ -288,13 +322,11 @@ function DimHelper(isCol, dim) {
                     });
 
                     // reposition 'data' divs
-                    cache.colhdrsDataDiv.css({left: colOffset});
-                    cache.rowhdrsDataDiv.css({top: rowOffset});
                     cache.cntDataDiv.css({left: colOffset, top: rowOffset});
 
                     // finished - enable
                     enable(true);
-                    $this.trigger('populated', [cols, rows, vals]);
+                    $this.trigger('populated', [vals]);
                 });
             }
         }
@@ -308,6 +340,7 @@ function DimHelper(isCol, dim) {
         // initalize data
         var orgX = colDim.scrollPos();
         var orgY = rowDim.scrollPos();
+        scrolled(orgX, orgY);
         stoppedScrolling(orgX, orgY);
         cache.colHdrsDiv.scrollLeft(orgX);
         cache.rowHdrsDiv.scrollTop(orgY);
@@ -318,11 +351,7 @@ function DimHelper(isCol, dim) {
             arrowButtonSpeedY: config.row.h,
             x: colDim.scrollPos(),
             y: rowDim.scrollPos(),
-            scrollCallback: function(x, y) {
-                cache.colHdrsDiv.scrollLeft(x);
-                cache.rowHdrsDiv.scrollTop(y);
-                $this.trigger('scroll_cont', [x, y]);
-            },
+            scrollCallback: scrolled,
             scrollStopCallback: stoppedScrolling
         });
 
