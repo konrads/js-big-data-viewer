@@ -1,18 +1,33 @@
-Hypercube data viewer
-=====================
+Widgets for big data, displayed in tabular format
+=================================================
 
-Javascript widget to display multidimensional data in scrollable format.  Features:
+Comprises JS source (utilizing jQuery and integrated with angularjs), as well as
+a simple Python Flask server to show of client-server interactions.
 
+Widgets:
+
+Scroll pane
+-----------
+Extension to jQuery scrollpane, integrates 'scroll-stop' event, can do initial scroll at load time (trigering no events).
+
+
+Big table
+---------
 * shows 2 dimensions as scrollable table (with scrollbars)
-* shows other dimensions as sliders
 * upon scrollbar/slider adjustment, data is fetched from the backend and table repopulated
 * events are issued once data is fetched (to tie in with other visualisation mechanisms)
 * data can be cached on the dimension boundary margins, to minimize server traffic
-* integration with top visualization tools provided
-* plugins for ajax, jsonp, websockets
+* integration with angularjs
+* plugins for ajax, potentially for the future: jsonp, websockets
 
-Future work:
 
+Hypercube
+---------
+UNIMPLEMENTED:
+Big table with additional dimensions (shown as sliders)
+
+Future work
+-----------
 * Rserve integration
     * Chef recipe for install of R, Rserve, pyRserve
     * instantionation of Rserve as a daemon
