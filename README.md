@@ -21,10 +21,22 @@ Big table
 * plugins for ajax, potentially for the future: jsonp, websockets
 
 
+To run
+------
+```bash
+> mkvirtualenv js-big-data-viewer
+> pip install -r requirements.txt
+> cd app
+> python flaskserver.py
+> open http://localhost:5000/portfolio
+```
+
+
 Hypercube
 ---------
 UNIMPLEMENTED:
 Big table with additional dimensions (shown as sliders)
+
 
 Future work
 -----------
