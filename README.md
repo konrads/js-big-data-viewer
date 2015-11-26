@@ -44,3 +44,5 @@ Future work
     * Chef recipe for install of R, Rserve, pyRserve
     * instantionation of Rserve as a daemon
 * intermediate HDF5 storage of R results (HDF5/pytables/?)
+
+Originally hosted on: https://bitbucket.org/ksosnowski/js-big-data-viewer
