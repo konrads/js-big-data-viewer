@@ -4,6 +4,8 @@ Widgets for big data, displayed in tabular format
 Comprises JS source (utilizing jQuery and integrated with angularjs), as well as
 a simple Python Flask server to show of client-server interactions.
 
+[Click here for a sample.](https://rawgit.com/konrads/js-big-data-viewer/master/app/static/bigtable.html)
+
 Widgets:
 
 Scroll pane
